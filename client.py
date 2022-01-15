@@ -1,13 +1,22 @@
 import json
 import socket
 
+
 def launch_client():
-
-    client_socket = socket.socket()  # создаем сокет
-    client_socket.connect(('localhost', 9090))  # подключаемся к хосту
-
+    try:
+        client_socket = socket.socket()  # создаем сокет
+        client_socket.connect(('localhost', 9090))  # подключаемся к хосту
+    except ConnectionRefusedError:
+        print('Сервер не запущен')
+        return False
+    print('Клиент запущен!')
     while True:
+        print('Выберите действие:')
         print('Введите 1 чтобы добавить ТС')
+        print('Введите 2 чтобы удалить ТС')
+        print('Введите 3 чтобы посмотреть данные ТС')
+        print('Введите 0 чтобы отключиться')
+
         choice = input()
         choice = int(choice)
 
@@ -18,21 +27,69 @@ def launch_client():
             client_data['action'] = 'add'
             client_data['content'] = add_car()
 
+        if choice == 2:
+            client_data['endpoint'] = 'cars'
+            client_data['action'] = 'delete'
+            client_data['content'] = delete_car()
 
+        if choice == 3:
+            client_data['endpoint'] = 'cars'
+            client_data['action'] = 'get'
+            client_data['content'] = get_car()
 
+        if choice == 0:
+            print('Завершение работы....')
+            client_socket.close()
+            break
         send_data = json.dumps(client_data)
-        client_socket.sendall(bytes(send_data, 'UTF-8'))
-
-        client_data = client_socket.recv(1024).decode()
+        client_socket.sendall(bytes(send_data, 'UTF-8'))  # отправка на сервер
+        client_data = client_socket.recv(1024).decode()  # получение ответа от сервера
         client_data = json.loads(client_data)
-        if  client_data['Status'] == '200':
-            print('Авто ', client_data['content']['Brand_and_name'],  'добавлено!', client_data['Status'])
-        else:
-            print('При добавлении произошла ошибка! ', 'Ответ ', client_data['Status'])
+
+        if choice == 1:
+            if client_data['Status'] == '200':
+                print('Авто ', client_data['content']['Brand_and_name'], 'добавлено!', client_data['Status'])
+            else:
+                print('При добавлении произошла ошибка! ', 'Ответ ', client_data['Status'])
+
+        if choice == 2:
+            if client_data['Status'] == '200':
+                print('Авто ', client_data['content']['Brand_and_name'], 'удалено!', client_data['Status'])
+            else:
+                print('При удалении произошла ошибка! ', 'Ответ ', client_data['Status'])
+
+        if choice == 3:
+            if client_data['Status'] == '200':
+                print('Данные авто:')
+                print('Id компании: ', client_data['content']['CompanyID'])
+                print('Адрес компании: ', client_data['content']['Location'])
+                print('Фотографии: ', client_data['content']['Photos'])
+                print('Условия аренды: ', client_data['content']['RentCondition'])
+                print('Заголовок: ', client_data['content']['Header'])
+                if client_data['content']['Driver'] == 'true':
+                    print('Водитель: есть')
+                else:
+                    print('Водитель: нет')
+                print('Id категории: ', client_data['content']['CategoryID'])
+                print('Категория ВУ: ', client_data['content']['CategoryVU'])
+                print('Фиксированная комиссия: ', client_data['content']['FixedRate'])
+                print('Процент комисии: ', client_data['content']['Percent'])
+                print('Марка и модель: ', client_data['content']['Brand_and_name'])
+                print('Id трансмиссии: ', client_data['content']['Transmission'])
+                print('Id двигателя: ', client_data['content']['Engine'])
+                print('Id кузова: ', client_data['content']['Car_type'])
+                print('Id привода: ', client_data['content']['Drive'])
+                print('Id положения руля: ', client_data['content']['Wheel_drive'])
+                print('Год выпуска: ', client_data['content']['Year'])
+                print('Мощность: ', client_data['content']['Power'])
+                print('Стоимость: ', client_data['content']['Price'])
+            else:
+                print('При получении информации произошла ошибка! ', 'Ответ ', client_data['Status'])
 
 
 def add_car():
     #  Поля отмеченные * - не обязательные или имеют значение по умолчанию
+    #  Проблема с пустыми полями
     content = {}
 
     print('Введите Id компании*')
@@ -46,13 +103,13 @@ def add_car():
     print('Введите заголовок')
     content['Header'] = input()
     print('Есть ли водитель? True or False')
-    content['Driver'] = input()
+    content['Driver'] = bool(input())
     content['Status'] = True
     print('Введите ID категории*')
     content['CategoryID'] = input()
     print('Введите название категории ВУ')
     content['CategoryVU'] = input()
-    content['DateDel'] = None
+    content['DateDel'] = ''
     print('Введите фиксированную комиссию')
     content['FixedRate'] = input()
     print('Введите процент комиссии')
@@ -76,6 +133,26 @@ def add_car():
     content['Power'] = input()
     print('Введите стоимость')
     content['Price'] = input()
+
+    return content
+
+
+def delete_car():
+    print('Введите id авто для удаления')
+    choice_del = input()
+    choice_del = int(choice_del)
+    content = {}
+    content['Id'] = choice_del
+
+    return content
+
+
+def get_car():
+    print('Введите id авто')
+    choice_del = input()
+    choice_del = int(choice_del)
+    content = {}
+    content['Id'] = choice_del
 
     return content
 
