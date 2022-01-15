@@ -3,7 +3,8 @@ from decimal import Decimal
 from sqlalchemy import create_engine,  Integer, String, Column, Date, ForeignKey, Numeric, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
-
+import socket
+import json
 from sqlalchemy.orm import Session
 
 db_engine = create_engine("postgresql+psycopg2://root:pass@localhost/postgres")
@@ -48,7 +49,7 @@ class Car(Base):
     RentCondition = Column(String, default='Описание условий аренды')
     Header = Column(String, nullable=False)
     Driver = Column(Boolean, nullable=False)
-    Status = Column(Boolean, nullable=False)
+    Status = Column(Boolean, nullable=True)
     CategoryID = Column(Integer, nullable=True)  # fk
     CategoryVU = Column(String, nullable=False)
     DateDel = Column(Date, nullable=True)
@@ -61,9 +62,9 @@ class Car(Base):
     Car_type = Column(Integer, nullable=True,  default=0)
     Drive = Column(Integer, nullable=True, default=0)
     Wheel_drive = Column(Integer, nullable=True, default=0)
-    Year = Column(Integer, nullable=True)
-    Power = Column(Integer, nullable=True)
-    Price = Column(Integer, nullable=True)
+    Year = Column(Integer, nullable=False)
+    Power = Column(Integer, nullable=False)
+    Price = Column(Integer, nullable=False)
 
 
     def add_car(data):
@@ -90,7 +91,8 @@ class Car(Base):
 
         session.add(car)
         session.commit()
-        data['content']['id'] = car.id
+        data['content']['Id'] = car.Id
+        data['Status'] = '200'
         return data
 
     # def update_car(car, request, pk):
@@ -134,5 +136,28 @@ class Car(Base):
     #     car.save()
     #     return car
 
+###########################################################################################################
+# Base.metadata.create_all(db_engine)
+def launch_server():
+    ADDRESS = 'localhost'
+    PORT = 9090
 
-Base.metadata.create_all(db_engine)
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # создаем сокет
+    server_socket.bind((ADDRESS, PORT))    # определяем адрес и порт
+    server_socket.listen(1)  # прослушиваем порт от одного клиента
+    print('Сервер запущен по адресу:', ADDRESS, PORT)
+###########################################################################################################
+    while True:
+        connection, address = server_socket.accept()
+        print('Клиент с адресом', address, ' подключен')
+        client_data = connection.recv(1024)  #client_data = {endpoint:cars, action:add, content:{fileds....}}
+        client_data = json.loads(client_data.decode())
+        print(client_data)
+        new_client_dict = client_data
+        if client_data['endpoint'] == 'cars':
+            if client_data['action'] == 'add':
+                new_client_dict = Car.add_car(new_client_dict)
+
+        connection.sendall(bytes(json.dumps(new_client_dict), 'UTF-8'))
+
+    start_server()
