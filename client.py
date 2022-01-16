@@ -16,6 +16,8 @@ def launch_client():
         print('Введите 2 чтобы удалить ТС')
         print('Введите 3 чтобы посмотреть данные ТС')
         print('Введите 4 чтобы посмотреть все ТС')
+        print('Введите 5 чтобы изменить ТС')
+
 
         print('Введите 0 чтобы отключиться')
 
@@ -43,6 +45,11 @@ def launch_client():
             client_data['endpoint'] = 'cars'
             client_data['action'] = 'get_cars'
             client_data['content'] = get_cars()
+
+        if choice == 5:
+            client_data['endpoint'] = 'cars'
+            client_data['action'] = 'edit_car'
+            client_data['content'] = edit_car()
 
         if choice == 0:
             print('Завершение работы....')
@@ -125,6 +132,11 @@ def launch_client():
             else:
                 print('При получении информации произошла ошибка! ', 'Ответ ', client_data['Status'])
 
+        if choice == 5:
+            if client_data['Status'] == '200':
+                print('Авто ', client_data['content']['Brand_and_name'], 'изменено!', client_data['Status'])
+            else:
+                print('При изменении произошла ошибка! ', 'Ответ ', client_data['Status'])
 def add_car():
     #  Поля отмеченные * - не обязательные или имеют значение по умолчанию
     #  Проблема с пустыми полями
@@ -201,5 +213,54 @@ def get_car():
 
     return content
 
+def edit_car():
+    #  Поля отмеченные * - не обязательные или имеют значение по умолчанию
+    #  Проблема с пустыми полями
+    content = {}
+    print('Введите Id ТС')
+    content['Id'] = input()
+    print('Введите Id компании*')
+    content['CompanyID'] = input()
+    print('Введите адрес компании')
+    content['Location'] = input()
+    print('Введите пути к фотографиям*')
+    content['Photos'] = input()
+    print('Введите условия аренды*')
+    content['RentCondition'] = input()
+    print('Введите заголовок')
+    content['Header'] = input()
+    print('Есть ли водитель? True or False')
+    content['Driver'] = bool(input())
+    content['Status'] = True
+    print('Введите ID категории*')
+    content['CategoryID'] = input()
+    print('Введите название категории ВУ')
+    content['CategoryVU'] = input()
+    content['DateDel'] = ''
+    print('Введите фиксированную комиссию')
+    content['FixedRate'] = input()
+    print('Введите процент комиссии')
+    content['Percent'] = input()
+
+    print('Введите марку и название')
+    content['Brand_and_name'] = input()
+    print('Введите Id трансмиссии*')
+    content['Transmission'] = input()
+    print('Введите Id двигателя*')
+    content['Engine'] = input()
+    print('Введите Id типа кузова*')
+    content['Car_type'] = input()
+    print('Введите Id привода*')
+    content['Drive'] = input()
+    print('Введите Id положения руля*')
+    content['Wheel_drive'] = input()
+    print('Введите год выпуска')
+    content['Year'] = input()
+    print('Введите мощность')
+    content['Power'] = input()
+    print('Введите стоимость')
+    content['Price'] = input()
+
+    return content
 
 launch_client()

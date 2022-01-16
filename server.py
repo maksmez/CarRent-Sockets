@@ -68,32 +68,35 @@ class Car(Base):
 
     def add_car(data):
         car = Car()
-        # car.Photos = data['content']['Photos']
-        car.Header = data['content']['Header']
-        # car.CategoryID = data['content']['Photos']
-        # car.CompanyID = request.POST.get('CompanyID')
-        car.Brand_and_name = data['content']['Brand_and_name']
-        car.Car_type = data['content']['Car_type']
-        car.Engine = data['content']['Engine']
-        car.Transmission = data['content']['Transmission']
-        car.Drive = data['content']['Drive']
-        car.Wheel_drive = data['content']['Wheel_drive']
-        car.Year = data['content']['Year']
-        car.Driver = data['content']['Driver']
-        car.Status = data['content']['Status']
-        car.Power = data['content']['Power']
-        car.CategoryVU = data['content']['CategoryVU']
-        car.Price = data['content']['Price']
-        car.FixedRate = data['content']['FixedRate']
-        car.Percent = data['content']['Percent']
-        car.Location = data['content']['Location']
-        car.RentCondition = data['content']['RentCondition']
+        if data is None:
+            data['Status'] = '400'
+        else:
+            car.Photos = data['content']['Photos']
+            car.Header = data['content']['Header']
+            car.CategoryID = data['content']['CategoryID']
+            car.CompanyID = data['content']['CompanyID']
+            car.Brand_and_name = data['content']['Brand_and_name']
+            car.Car_type = data['content']['Car_type']
+            car.Engine = data['content']['Engine']
+            car.Transmission = data['content']['Transmission']
+            car.Drive = data['content']['Drive']
+            car.Wheel_drive = data['content']['Wheel_drive']
+            car.Year = data['content']['Year']
+            car.Driver = data['content']['Driver']
+            car.Status = data['content']['Status']
+            car.Power = data['content']['Power']
+            car.CategoryVU = data['content']['CategoryVU']
+            car.Price = data['content']['Price']
+            car.FixedRate = data['content']['FixedRate']
+            car.Percent = data['content']['Percent']
+            car.Location = data['content']['Location']
+            car.RentCondition = data['content']['RentCondition']
 
-        session.add(car)
-        session.commit()
-        data['content']['Id'] = car.Id
-        data['Status'] = '200'
-        return data
+            session.add(car)
+            session.commit()
+            data['content']['Id'] = car.Id
+            data['Status'] = '200'
+            return data
 
     def delete_car(data):
         car = session.query(Car).get(data['content']['Id'])
@@ -170,28 +173,39 @@ class Car(Base):
             data['Status'] = '200'
         return data
 
-    # def update_car(car, request, pk):
-    #     car = Car.objects.get(id=pk)
-    #     car.Header = request.POST.get('Header')
-    #     car.CategoryID_id = request.POST.get('CategoryID')
-    #     car.CompanyID_id = request.POST.get('CompanyID')
-    #     car.Brand_and_name = request.POST.get('Brand_and_name')
-    #     car.Car_type = request.POST.get('Car_type')
-    #     car.Engine = request.POST.get('Engine')
-    #     car.Transmission = request.POST.get('Transmission')
-    #     car.Drive = request.POST.get('Drive')
-    #     car.Wheel_drive = request.POST.get('Wheel_drive')
-    #     car.Year = request.POST.get('Year')
-    #     car.Driver = request.POST.get('Driver')
-    #     car.Power = request.POST.get('Power')
-    #     car.CategoryVUID = request.POST.get('CategoryVUID')
-    #     car.Price = request.POST.get('Price')
-    #     car.FixedRate = request.POST.get('FixedRate')
-    #     car.Percent = request.POST.get('Percent')
-    #     car.Location = request.POST.get('Location')
-    #     car.RentCondition = request.POST.get('RentCondition')
-    #     car.save()
-    #     return car
+    def edit_car(data):
+        car = session.query(Car).get(data['content']['Id'])
+        if car is None:
+            data['Status'] = '404'
+        else:
+            car.Photos = data['content']['Photos']
+            car.Header = data['content']['Header']
+            car.CategoryID = data['content']['CategoryID']
+            car.CompanyID = data['content']['CompanyID']
+            car.Brand_and_name = data['content']['Brand_and_name']
+            car.Car_type = data['content']['Car_type']
+            car.Engine = data['content']['Engine']
+            car.Transmission = data['content']['Transmission']
+            car.Drive = data['content']['Drive']
+            car.Wheel_drive = data['content']['Wheel_drive']
+            car.Year = data['content']['Year']
+            car.Driver = data['content']['Driver']
+            car.Status = data['content']['Status']
+            car.Power = data['content']['Power']
+            car.CategoryVU = data['content']['CategoryVU']
+            car.Price = data['content']['Price']
+            car.FixedRate = data['content']['FixedRate']
+            car.Percent = data['content']['Percent']
+            car.Location = data['content']['Location']
+            car.RentCondition = data['content']['RentCondition']
+
+            session.add(car)
+            session.commit()
+            data['content']['Id'] = car.Id
+            data['Status'] = '200'
+            return data
+
+
     #
     #
     #
@@ -240,6 +254,9 @@ def launch_server():
                 if client_data['action'] == 'get_cars':
                     new_client_dict = Car.get_cars(new_client_dict)
                     print('Просмотр всех авто', new_client_dict['Status'])
+                if client_data['action'] == 'edit_car':
+                    new_client_dict = Car.edit_car(new_client_dict)
+                    print('Редактирование авто', new_client_dict['Status'])
 
             connection.sendall(bytes(json.dumps(new_client_dict, ensure_ascii=False, default=str), 'UTF-8'))
 
