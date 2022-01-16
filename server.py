@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from sqlalchemy import create_engine,  Integer, String, Column, Date, ForeignKey, Numeric, Boolean
+from sqlalchemy import create_engine, Integer, String, Column, Date, ForeignKey, Numeric, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime, date
 import socket
@@ -15,7 +15,7 @@ session = Session(bind=db_engine)
 
 
 class Car(Base):
-    __tablename__='Cars'
+    __tablename__ = 'Cars'
     transmission_list = [
         (0, 'Механическая'),
         (1, 'Автоматическая')
@@ -59,13 +59,12 @@ class Car(Base):
     Brand_and_name = Column(String, nullable=False)
     Transmission = Column(Integer, nullable=True, default=0)
     Engine = Column(Integer, nullable=True, default=0)
-    Car_type = Column(Integer, nullable=True,  default=0)
+    Car_type = Column(Integer, nullable=True, default=0)
     Drive = Column(Integer, nullable=True, default=0)
     Wheel_drive = Column(Integer, nullable=True, default=0)
     Year = Column(Integer, nullable=False)
     Power = Column(Integer, nullable=False)
     Price = Column(Integer, nullable=False)
-
 
     def add_car(data):
         car = Car()
@@ -136,6 +135,40 @@ class Car(Base):
             data['Status'] = '200'
         return data
 
+    def get_cars(data):
+        cars = session.query(Car).filter(Car.CategoryID == int(data['content']['CategoryID'])).all()
+        new_cars = []  # [{} {} {}]
+        if cars is None:
+            data['Status'] = '404'
+        else:
+            for car in cars:
+                dict = {}
+                dict['Id'] = car.Id
+                dict['CategoryID'] = car.CategoryID
+                dict['CompanyID'] = car.CompanyID
+                dict['Location'] = car.Location
+                dict['Photos'] = car.Photos
+                dict['RentCondition'] = car.RentCondition
+                dict['Header'] = car.Header
+                dict['Driver'] = car.Driver
+                dict['CategoryID'] = car.CategoryID
+                dict['CategoryVU'] = car.CategoryVU
+                dict['FixedRate'] = car.FixedRate
+                dict['Percent'] = car.Percent
+
+                dict['Brand_and_name'] = car.Brand_and_name
+                dict['Transmission'] = car.Transmission
+                dict['Engine'] = car.Engine
+                dict['Car_type'] = car.Car_type
+                dict['Drive'] = car.Drive
+                dict['Wheel_drive'] = car.Wheel_drive
+                dict['Year'] = car.Year
+                dict['Power'] = car.Power
+                dict['Price'] = car.Price
+                new_cars.append(dict)
+            data['content'] = new_cars
+            data['Status'] = '200'
+        return data
 
     # def update_car(car, request, pk):
     #     car = Car.objects.get(id=pk)
@@ -174,6 +207,7 @@ class Car(Base):
     #     car.save()
     #     return car
 
+
 ###########################################################################################################
 # Base.metadata.create_all(db_engine)
 def launch_server():
@@ -181,15 +215,15 @@ def launch_server():
     PORT = 9090
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # создаем сокет
-    server_socket.bind((ADDRESS, PORT))    # определяем адрес и порт
+    server_socket.bind((ADDRESS, PORT))  # определяем адрес и порт
     server_socket.listen(1)  # прослушиваем порт от одного клиента
     print('Сервер запущен по адресу:', ADDRESS, PORT)
-###########################################################################################################
+    ###########################################################################################################
     while True:
         connection, address = server_socket.accept()
         print('Клиент с адресом', address, ' подключен')
         while True:
-            client_data = connection.recv(1024)  #client_data = {endpoint:cars, action:add, content:{fileds....}}
+            client_data = connection.recv(1024)  # client_data = {endpoint:cars, action:add, content:{fields....}}
             client_data = json.loads(client_data.decode())
             print(client_data)
             new_client_dict = client_data
@@ -203,8 +237,11 @@ def launch_server():
                 if client_data['action'] == 'get':
                     new_client_dict = Car.get_car(new_client_dict)
                     print('Просмотр данных авто', new_client_dict['Status'])
-
+                if client_data['action'] == 'get_cars':
+                    new_client_dict = Car.get_cars(new_client_dict)
+                    print('Просмотр всех авто', new_client_dict['Status'])
 
             connection.sendall(bytes(json.dumps(new_client_dict, ensure_ascii=False, default=str), 'UTF-8'))
+
 
 launch_server()

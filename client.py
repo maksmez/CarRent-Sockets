@@ -5,7 +5,7 @@ import socket
 def launch_client():
     try:
         client_socket = socket.socket()  # создаем сокет
-        client_socket.connect(('localhost', 9090))  # подключаемся к хосту
+        client_socket.connect(('localhost', 9090))  # подключаемся к серверу
     except ConnectionRefusedError:
         print('Сервер не запущен')
         return False
@@ -15,6 +15,8 @@ def launch_client():
         print('Введите 1 чтобы добавить ТС')
         print('Введите 2 чтобы удалить ТС')
         print('Введите 3 чтобы посмотреть данные ТС')
+        print('Введите 4 чтобы посмотреть все ТС')
+
         print('Введите 0 чтобы отключиться')
 
         choice = input()
@@ -37,12 +39,19 @@ def launch_client():
             client_data['action'] = 'get'
             client_data['content'] = get_car()
 
+        if choice == 4:
+            client_data['endpoint'] = 'cars'
+            client_data['action'] = 'get_cars'
+            client_data['content'] = get_cars()
+
         if choice == 0:
             print('Завершение работы....')
             client_socket.close()
             break
+
         send_data = json.dumps(client_data)
         client_socket.sendall(bytes(send_data, 'UTF-8'))  # отправка на сервер
+
         client_data = client_socket.recv(1024).decode()  # получение ответа от сервера
         client_data = json.loads(client_data)
 
@@ -86,6 +95,35 @@ def launch_client():
             else:
                 print('При получении информации произошла ошибка! ', 'Ответ ', client_data['Status'])
 
+        if choice == 4:
+            if client_data['Status'] == '200':
+                print('Список авто')
+                for car in client_data['content']:
+                    print('                     Данные авто c Id:', car['Id'])
+                    print('Id компании: ', car['CompanyID'])
+                    print('Адрес компании: ', car['Location'])
+                    print('Фотографии: ', car['Photos'])
+                    print('Условия аренды: ', car['RentCondition'])
+                    print('Заголовок: ', car['Header'])
+                    if car['Driver'] == 'true':
+                        print('Водитель: есть')
+                    else:
+                        print('Водитель: нет')
+                    print('Id категории: ', car['CategoryID'])
+                    print('Категория ВУ: ', car['CategoryVU'])
+                    print('Фиксированная комиссия: ', car['FixedRate'])
+                    print('Процент комисии: ', car['Percent'])
+                    print('Марка и модель: ', car['Brand_and_name'])
+                    print('Id трансмиссии: ', car['Transmission'])
+                    print('Id двигателя: ', car['Engine'])
+                    print('Id кузова: ', car['Car_type'])
+                    print('Id привода: ', car['Drive'])
+                    print('Id положения руля: ', car['Wheel_drive'])
+                    print('Год выпуска: ', car['Year'])
+                    print('Мощность: ', car['Power'])
+                    print('Стоимость: ', car['Price'])
+            else:
+                print('При получении информации произошла ошибка! ', 'Ответ ', client_data['Status'])
 
 def add_car():
     #  Поля отмеченные * - не обязательные или имеют значение по умолчанию
@@ -136,7 +174,6 @@ def add_car():
 
     return content
 
-
 def delete_car():
     print('Введите id авто для удаления')
     choice_del = input()
@@ -146,13 +183,21 @@ def delete_car():
 
     return content
 
+def get_cars():
+    print('Введите id категории')
+    choice_car = input()
+    choice_car = int(choice_car)
+    content = {}
+    content['CategoryID'] = choice_car
+
+    return content
 
 def get_car():
     print('Введите id авто')
-    choice_del = input()
-    choice_del = int(choice_del)
+    choice_car = input()
+    choice_car = int(choice_car)
     content = {}
-    content['Id'] = choice_del
+    content['Id'] = choice_car
 
     return content
 
