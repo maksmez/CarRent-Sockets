@@ -7,7 +7,8 @@ import socket
 import json
 from sqlalchemy.orm import Session
 
-db_engine = create_engine("postgresql+psycopg2://root:pass@localhost/postgres")
+# db_engine = create_engine("postgresql+psycopg2://root:pass@localhost/postgres")
+db_engine = create_engine("sqlite:///database.db")
 
 Base = declarative_base()
 
@@ -16,31 +17,6 @@ session = Session(bind=db_engine)
 
 class Car(Base):
     __tablename__ = 'Cars'
-    transmission_list = [
-        (0, 'Механическая'),
-        (1, 'Автоматическая')
-    ]
-    engine_list = [
-        (0, 'Бензиновый'),
-        (1, 'Дизельный')
-    ]
-    car_type_list = [
-        (0, 'Седан'),
-        (1, 'Кроссовер'),
-        (2, 'Универсал'),
-        (3, 'Хэтчбек'),
-        (4, 'Купе'),
-        (5, 'Микро')
-    ]
-    drive_list = [
-        (0, 'Полный'),
-        (1, 'Задний'),
-        (2, 'Передний')
-    ]
-    wheel_drive_list = [
-        (0, 'Правый'),
-        (1, 'Левый')
-    ]
 
     Id = Column(Integer, primary_key=True)  # pk
     CompanyID = Column(Integer, nullable=True)  # fk
@@ -71,26 +47,32 @@ class Car(Base):
         if data is None:
             data['Status'] = '400'
         else:
-            car.Photos = data['content']['Photos']
-            car.Header = data['content']['Header']
-            car.CategoryID = data['content']['CategoryID']
-            car.CompanyID = data['content']['CompanyID']
-            car.Brand_and_name = data['content']['Brand_and_name']
-            car.Car_type = data['content']['Car_type']
-            car.Engine = data['content']['Engine']
-            car.Transmission = data['content']['Transmission']
-            car.Drive = data['content']['Drive']
-            car.Wheel_drive = data['content']['Wheel_drive']
-            car.Year = data['content']['Year']
-            car.Driver = data['content']['Driver']
-            car.Status = data['content']['Status']
-            car.Power = data['content']['Power']
-            car.CategoryVU = data['content']['CategoryVU']
-            car.Price = data['content']['Price']
-            car.FixedRate = data['content']['FixedRate']
-            car.Percent = data['content']['Percent']
-            car.Location = data['content']['Location']
-            car.RentCondition = data['content']['RentCondition']
+            car.__dict__.update(data['content'])
+            car.DateDel = None
+
+
+
+
+            # car.Photos = data['content']['Photos']
+            # car.Header = data['content']['Header']
+            # car.CategoryID = data['content']['CategoryID']
+            # car.CompanyID = data['content']['CompanyID']
+            # car.Brand_and_name = data['content']['Brand_and_name']
+            # car.Car_type = data['content']['Car_type']
+            # car.Engine = data['content']['Engine']
+            # car.Transmission = data['content']['Transmission']
+            # car.Drive = data['content']['Drive']
+            # car.Wheel_drive = data['content']['Wheel_drive']
+            # car.Year = data['content']['Year']
+            # car.Driver = data['content']['Driver']
+            # car.Status = data['content']['Status']
+            # car.Power = data['content']['Power']
+            # car.CategoryVU = data['content']['CategoryVU']
+            # car.Price = data['content']['Price']
+            # car.FixedRate = data['content']['FixedRate']
+            # car.Percent = data['content']['Percent']
+            # car.Location = data['content']['Location']
+            # car.RentCondition = data['content']['RentCondition']
 
             session.add(car)
             session.commit()
@@ -113,7 +95,7 @@ class Car(Base):
         car = session.query(Car).get(data['content']['Id'])
         if car is None:
             data['Status'] = '404'
-        else:
+        elif car.DateDel is None:
             data['content']['CompanyID'] = car.CompanyID
             data['content']['Location'] = car.Location
             data['content']['Photos'] = car.Photos
@@ -122,8 +104,8 @@ class Car(Base):
             data['content']['Driver'] = car.Driver
             data['content']['CategoryID'] = car.CategoryID
             data['content']['CategoryVU'] = car.CategoryVU
-            data['content']['FixedRate'] = car.FixedRate
-            data['content']['Percent'] = car.Percent
+            data['content']['FixedRate'] = round(car.FixedRate, 2)
+            data['content']['Percent'] = round(car.Percent, 2)
 
             data['content']['Brand_and_name'] = car.Brand_and_name
             data['content']['Transmission'] = car.Transmission
@@ -136,6 +118,8 @@ class Car(Base):
             data['content']['Price'] = car.Price
 
             data['Status'] = '200'
+        else:
+            data['Status'] = '404'
         return data
 
     def get_cars(data):
@@ -145,30 +129,33 @@ class Car(Base):
             data['Status'] = '404'
         else:
             for car in cars:
-                dict = {}
-                dict['Id'] = car.Id
-                dict['CategoryID'] = car.CategoryID
-                dict['CompanyID'] = car.CompanyID
-                dict['Location'] = car.Location
-                dict['Photos'] = car.Photos
-                dict['RentCondition'] = car.RentCondition
-                dict['Header'] = car.Header
-                dict['Driver'] = car.Driver
-                dict['CategoryID'] = car.CategoryID
-                dict['CategoryVU'] = car.CategoryVU
-                dict['FixedRate'] = car.FixedRate
-                dict['Percent'] = car.Percent
+                if car.DateDel is None:
+                    dict = {}
+                    dict['Id'] = car.Id
+                    dict['CategoryID'] = car.CategoryID
+                    dict['CompanyID'] = car.CompanyID
+                    dict['Location'] = car.Location
+                    dict['Photos'] = car.Photos
+                    dict['RentCondition'] = car.RentCondition
+                    dict['Header'] = car.Header
+                    dict['Driver'] = car.Driver
+                    dict['CategoryID'] = car.CategoryID
+                    dict['CategoryVU'] = car.CategoryVU
+                    dict['FixedRate'] = round(car.FixedRate, 2)
+                    dict['Percent'] = round(car.Percent, 2)
 
-                dict['Brand_and_name'] = car.Brand_and_name
-                dict['Transmission'] = car.Transmission
-                dict['Engine'] = car.Engine
-                dict['Car_type'] = car.Car_type
-                dict['Drive'] = car.Drive
-                dict['Wheel_drive'] = car.Wheel_drive
-                dict['Year'] = car.Year
-                dict['Power'] = car.Power
-                dict['Price'] = car.Price
-                new_cars.append(dict)
+                    dict['Brand_and_name'] = car.Brand_and_name
+                    dict['Transmission'] = car.Transmission
+                    dict['Engine'] = car.Engine
+                    dict['Car_type'] = car.Car_type
+                    dict['Drive'] = car.Drive
+                    dict['Wheel_drive'] = car.Wheel_drive
+                    dict['Year'] = car.Year
+                    dict['Power'] = car.Power
+                    dict['Price'] = car.Price
+                    new_cars.append(dict)
+                else:
+                    break
             data['content'] = new_cars
             data['Status'] = '200'
         return data
@@ -178,37 +165,38 @@ class Car(Base):
         if car is None:
             data['Status'] = '404'
         else:
-            car.Photos = data['content']['Photos']
-            car.Header = data['content']['Header']
-            car.CategoryID = data['content']['CategoryID']
-            car.CompanyID = data['content']['CompanyID']
-            car.Brand_and_name = data['content']['Brand_and_name']
-            car.Car_type = data['content']['Car_type']
-            car.Engine = data['content']['Engine']
-            car.Transmission = data['content']['Transmission']
-            car.Drive = data['content']['Drive']
-            car.Wheel_drive = data['content']['Wheel_drive']
-            car.Year = data['content']['Year']
-            car.Driver = data['content']['Driver']
-            car.Status = data['content']['Status']
-            car.Power = data['content']['Power']
-            car.CategoryVU = data['content']['CategoryVU']
-            car.Price = data['content']['Price']
-            car.FixedRate = data['content']['FixedRate']
-            car.Percent = data['content']['Percent']
-            car.Location = data['content']['Location']
-            car.RentCondition = data['content']['RentCondition']
+            data['content']['DateDel'] = None
+            new_car = car.__dict__.update(data['content'])
 
-            session.add(car)
+            # car.Photos = data['content']['Photos']
+            # car.Header = data['content']['Header']
+            # car.CategoryID = data['content']['CategoryID']
+            # car.CompanyID = data['content']['CompanyID']
+            # car.Brand_and_name = data['content']['Brand_and_name']
+            # car.Car_type = data['content']['Car_type']
+            # car.Engine = data['content']['Engine']
+            # car.Transmission = data['content']['Transmission']
+            # car.Drive = data['content']['Drive']
+            # car.Wheel_drive = data['content']['Wheel_drive']
+            # car.Year = data['content']['Year']
+            # car.Driver = data['content']['Driver']
+            # car.Status = data['content']['Status']
+            # car.Power = data['content']['Power']
+            # car.CategoryVU = data['content']['CategoryVU']
+            # car.Price = data['content']['Price']
+            # car.FixedRate = data['content']['FixedRate']
+            # car.Percent = data['content']['Percent']
+            # car.Location = data['content']['Location']
+            # car.RentCondition = data['content']['RentCondition']
+
+            session.add(new_car)
             session.commit()
-            data['content']['Id'] = car.Id
+            data['content']['Id'] = new_car.Id
             data['Status'] = '200'
             return data
 
 
-    #
-    #
-    #
+
     # def hidden_car(pk):
     #     car = Car.objects.get(id=pk)
     #     car.Status = 1
@@ -232,33 +220,34 @@ def launch_server():
     server_socket.bind((ADDRESS, PORT))  # определяем адрес и порт
     server_socket.listen(1)  # прослушиваем порт от одного клиента
     print('Сервер запущен по адресу:', ADDRESS, PORT)
-    ###########################################################################################################
+###########################################################################################################
+    cars_dict = {
+        'add': Car.add_car,
+        'delete': Car.delete_car,
+        'get': Car.get_car,
+        'get_cars': Car.get_cars,
+        'edit_car': Car .edit_car
+    }
     while True:
         connection, address = server_socket.accept()
         print('Клиент с адресом', address, ' подключен')
         while True:
-            client_data = connection.recv(1024)  # client_data = {endpoint:cars, action:add, content:{fields....}}
+            try:
+                client_data = connection.recv(1024)
+            except ConnectionResetError:
+                print('Клиент с адресом', address, ' отключился')
+                break
+            if not client_data:
+                print('Клиент с адресом', address, ' отключился')
+                break
             client_data = json.loads(client_data.decode())
             print(client_data)
             new_client_dict = client_data
             if client_data['endpoint'] == 'cars':
-                if client_data['action'] == 'add':
-                    new_client_dict = Car.add_car(new_client_dict)
-                    print('Добавление авто', new_client_dict['Status'])
-                if client_data['action'] == 'delete':
-                    new_client_dict = Car.delete_car(new_client_dict)
-                    print('Удаление авто', new_client_dict['Status'])
-                if client_data['action'] == 'get':
-                    new_client_dict = Car.get_car(new_client_dict)
-                    print('Просмотр данных авто', new_client_dict['Status'])
-                if client_data['action'] == 'get_cars':
-                    new_client_dict = Car.get_cars(new_client_dict)
-                    print('Просмотр всех авто', new_client_dict['Status'])
-                if client_data['action'] == 'edit_car':
-                    new_client_dict = Car.edit_car(new_client_dict)
-                    print('Редактирование авто', new_client_dict['Status'])
+                q = client_data['action']
+                new_client_dict = cars_dict.get(q)(client_data)
 
             connection.sendall(bytes(json.dumps(new_client_dict, ensure_ascii=False, default=str), 'UTF-8'))
 
-
+# Base.metadata.create_all(db_engine)
 launch_server()
