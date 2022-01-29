@@ -1,19 +1,28 @@
-from decimal import Decimal
-
 from sqlalchemy import create_engine, Integer, String, Column, Date, ForeignKey, Numeric, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime, date
 import socket
 import json
 from sqlalchemy.orm import Session
+import logging
 
 # db_engine = create_engine("postgresql+psycopg2://root:pass@localhost/postgres")
 db_engine = create_engine("sqlite:///database.db")
-
 Base = declarative_base()
-
 session = Session(bind=db_engine)
+#########################################################################################
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="[%(asctime)s] - %(levelname)s - %(name)s - %(message)s",
+    datefmt="%d/%b/%Y %H:%M:%S",
+    filename="server_logger.log")
+logger = logging.getLogger('server')
+#########################################################################################
 
+def object_to_dict(obj):  # преобразоваение объекта в словарь
+    return {x.name: getattr(obj, x.name)
+            for x in obj.__table__.columns}
+#########################################################################################
 
 class Car(Base):
     __tablename__ = 'Cars'
@@ -25,7 +34,7 @@ class Car(Base):
     RentCondition = Column(String, default='Описание условий аренды')
     Header = Column(String, nullable=False)
     Driver = Column(Boolean, nullable=False)
-    Status = Column(Boolean, nullable=True)
+    status = Column(Boolean, nullable=True)
     CategoryID = Column(Integer, nullable=True)  # fk
     CategoryVU = Column(String, nullable=False)
     DateDel = Column(Date, nullable=True)
@@ -43,169 +52,123 @@ class Car(Base):
     Price = Column(Integer, nullable=False)
 
     def add_car(data):
-        car = Car()
-        if data is None:
-            data['Status'] = '400'
-        else:
-            car.__dict__.update(data['content'])
+        try:
+            car = Car(**data['content'])
             car.DateDel = None
-
-
-
-
-            # car.Photos = data['content']['Photos']
-            # car.Header = data['content']['Header']
-            # car.CategoryID = data['content']['CategoryID']
-            # car.CompanyID = data['content']['CompanyID']
-            # car.Brand_and_name = data['content']['Brand_and_name']
-            # car.Car_type = data['content']['Car_type']
-            # car.Engine = data['content']['Engine']
-            # car.Transmission = data['content']['Transmission']
-            # car.Drive = data['content']['Drive']
-            # car.Wheel_drive = data['content']['Wheel_drive']
-            # car.Year = data['content']['Year']
-            # car.Driver = data['content']['Driver']
-            # car.Status = data['content']['Status']
-            # car.Power = data['content']['Power']
-            # car.CategoryVU = data['content']['CategoryVU']
-            # car.Price = data['content']['Price']
-            # car.FixedRate = data['content']['FixedRate']
-            # car.Percent = data['content']['Percent']
-            # car.Location = data['content']['Location']
-            # car.RentCondition = data['content']['RentCondition']
-
             session.add(car)
             session.commit()
-            data['content']['Id'] = car.Id
-            data['Status'] = '200'
-            return data
+            data['status'] = '200'
+            data['message'] = 'ТС с id ' + str(car.Id) + ' добавлено'
+            logger.info(data['message'] + ' ' + data['status'])
+        except:
+            data['status'] = '500'
+            data['message'] = 'При добавлении клиента произошла ошибка'
+            logger.info(data['message'] + ' ' + data['status'])
+
+        return data
 
     def delete_car(data):
-        car = session.query(Car).get(data['content']['Id'])
-        if car is None:
-            data['Status'] = '404'
-        else:
+        try:
+            car = session.query(Car).get(data['content']['Id'])
             car.DateDel = date.today()
             session.commit()
-            data['content']['Brand_and_name'] = car.Brand_and_name
-            data['Status'] = '200'
+            data['status'] = '200'
+            data['message'] = 'ТС с id ' + str(data['content']['Id']) + ' удалено'
+            logger.info(data['message'] + ' ' + data['status'])
+        except:
+            data['status'] = '404'
+            data['message'] = 'ТС с id ' + str(data['content']['Id']) + ' не найдено'
+            logger.info(str(data['message']) + ' ' + data['status'] )
         return data
 
     def get_car(data):
-        car = session.query(Car).get(data['content']['Id'])
-        if car is None:
-            data['Status'] = '404'
-        elif car.DateDel is None:
-            data['content']['CompanyID'] = car.CompanyID
-            data['content']['Location'] = car.Location
-            data['content']['Photos'] = car.Photos
-            data['content']['RentCondition'] = car.RentCondition
-            data['content']['Header'] = car.Header
-            data['content']['Driver'] = car.Driver
-            data['content']['CategoryID'] = car.CategoryID
-            data['content']['CategoryVU'] = car.CategoryVU
-            data['content']['FixedRate'] = round(car.FixedRate, 2)
-            data['content']['Percent'] = round(car.Percent, 2)
-
-            data['content']['Brand_and_name'] = car.Brand_and_name
-            data['content']['Transmission'] = car.Transmission
-            data['content']['Engine'] = car.Engine
-            data['content']['Car_type'] = car.Car_type
-            data['content']['Drive'] = car.Drive
-            data['content']['Wheel_drive'] = car.Wheel_drive
-            data['content']['Year'] = car.Year
-            data['content']['Power'] = car.Power
-            data['content']['Price'] = car.Price
-
-            data['Status'] = '200'
-        else:
-            data['Status'] = '404'
+        try:
+            car = session.query(Car).filter(Car.Id == int(data['content']['Id']), Car.DateDel == None).first()
+            data['content'] = object_to_dict(car)
+            data['status'] = '200'
+            data['message'] = 'Просмотр ТС c id ' + str(data['content']['Id']) + ' ' + data['content']['Brand_and_name']
+            logger.info(data['message'] + ' ' + data['status'])
+        except:
+            data['status'] = '404'
+            data['message'] = 'ТС с id ' + str(data['content']['Id']) + ' не найдено'
+            logger.info(str(data['message']) + ' ' + data['status'])
         return data
 
     def get_cars(data):
-        cars = session.query(Car).filter(Car.CategoryID == int(data['content']['CategoryID'])).all()
-        new_cars = []  # [{} {} {}]
-        if cars is None:
-            data['Status'] = '404'
-        else:
+        try:
+            cars = session.query(Car).filter(Car.CategoryID == int(data['content']['CategoryID']), Car.DateDel == None).all()
+            new_cars = []  # [{} {} {}]
             for car in cars:
-                if car.DateDel is None:
-                    dict = {}
-                    dict['Id'] = car.Id
-                    dict['CategoryID'] = car.CategoryID
-                    dict['CompanyID'] = car.CompanyID
-                    dict['Location'] = car.Location
-                    dict['Photos'] = car.Photos
-                    dict['RentCondition'] = car.RentCondition
-                    dict['Header'] = car.Header
-                    dict['Driver'] = car.Driver
-                    dict['CategoryID'] = car.CategoryID
-                    dict['CategoryVU'] = car.CategoryVU
-                    dict['FixedRate'] = round(car.FixedRate, 2)
-                    dict['Percent'] = round(car.Percent, 2)
+                dict = object_to_dict(car)
+                new_cars.append(dict)
+            if new_cars:
+                data['status'] = '200'
+                data['message'] = 'Просмотр списка ТС с категорией ' + str(data['content']['CategoryID'])
+                logger.info(data['message'] + ' ' + data['status'])
+                data['content'] = new_cars
+            else:
+                data['status'] = '404'
+                data['message'] = 'ТС с категорией ' + str(data['content']['CategoryID']) + ' нет'
+                logger.info(data['message'] + ' ' + data['status'])
+        except:
+            data['status'] = '500'
+            data['message'] = 'При просмотре списка авто произошла ошибка'
+            logger.error(data['message'] + ' ' + data['status'])
 
-                    dict['Brand_and_name'] = car.Brand_and_name
-                    dict['Transmission'] = car.Transmission
-                    dict['Engine'] = car.Engine
-                    dict['Car_type'] = car.Car_type
-                    dict['Drive'] = car.Drive
-                    dict['Wheel_drive'] = car.Wheel_drive
-                    dict['Year'] = car.Year
-                    dict['Power'] = car.Power
-                    dict['Price'] = car.Price
-                    new_cars.append(dict)
-                else:
-                    break
-            data['content'] = new_cars
-            data['Status'] = '200'
         return data
 
     def edit_car(data):
-        car = session.query(Car).get(data['content']['Id'])
-        if car is None:
-            data['Status'] = '404'
-        else:
-            data['content']['DateDel'] = None
-            new_car = car.__dict__.update(data['content'])
+        try:
+            car = session.query(Car).get(data['content']['Id'])
+            if car is None:
+                data['status'] = '404'
+                data['message'] = 'ТС с id ' + str(data['content']['Id'] + ' не найдено!')
+                logger.info(data['message'] + ' ' + data['status'])
+            else:
+                data['content']['DateDel'] = None
+                # new_car = car.__dict__.update(data['content'])
 
-            # car.Photos = data['content']['Photos']
-            # car.Header = data['content']['Header']
-            # car.CategoryID = data['content']['CategoryID']
-            # car.CompanyID = data['content']['CompanyID']
-            # car.Brand_and_name = data['content']['Brand_and_name']
-            # car.Car_type = data['content']['Car_type']
-            # car.Engine = data['content']['Engine']
-            # car.Transmission = data['content']['Transmission']
-            # car.Drive = data['content']['Drive']
-            # car.Wheel_drive = data['content']['Wheel_drive']
-            # car.Year = data['content']['Year']
-            # car.Driver = data['content']['Driver']
-            # car.Status = data['content']['Status']
-            # car.Power = data['content']['Power']
-            # car.CategoryVU = data['content']['CategoryVU']
-            # car.Price = data['content']['Price']
-            # car.FixedRate = data['content']['FixedRate']
-            # car.Percent = data['content']['Percent']
-            # car.Location = data['content']['Location']
-            # car.RentCondition = data['content']['RentCondition']
+                car.Photos = data['content']['Photos']
+                car.Header = data['content']['Header']
+                car.CategoryID = data['content']['CategoryID']
+                car.CompanyID = data['content']['CompanyID']
+                car.Brand_and_name = data['content']['Brand_and_name']
+                car.Car_type = data['content']['Car_type']
+                car.Engine = data['content']['Engine']
+                car.Transmission = data['content']['Transmission']
+                car.Drive = data['content']['Drive']
+                car.Wheel_drive = data['content']['Wheel_drive']
+                car.Year = data['content']['Year']
+                car.Driver = data['content']['Driver']
+                car.status = data['content']['status']
+                car.Power = data['content']['Power']
+                car.CategoryVU = data['content']['CategoryVU']
+                car.Price = data['content']['Price']
+                car.FixedRate = data['content']['FixedRate']
+                car.Percent = data['content']['Percent']
+                car.Location = data['content']['Location']
+                car.RentCondition = data['content']['RentCondition']
 
-            session.add(new_car)
-            session.commit()
-            data['content']['Id'] = new_car.Id
-            data['Status'] = '200'
-            return data
-
-
+                session.add(car)
+                session.commit()
+                data['status'] = '200'
+                data['message'] = 'Редактирование ТС с id  ' + str(data['content']['Id'])
+                logger.info(data['message'] + ' ' + data['status'])
+        except:
+            data['status'] = '500'
+            data['message'] = 'Произошла ошибка редактирования ТС с id ' + str(data['content']['Id'])
+            logger.info(data['message'] + ' ' + data['status'])
+        return data
 
     # def hidden_car(pk):
     #     car = Car.objects.get(id=pk)
-    #     car.Status = 1
+    #     car.status = 1
     #     car.save()
     #     return car
     #
     # def visible_car(pk):
     #     car = Car.objects.get(id=pk)
-    #     car.Status = 0
+    #     car.status = 0
     #     car.save()
     #     return car
 
@@ -220,25 +183,29 @@ def launch_server():
     server_socket.bind((ADDRESS, PORT))  # определяем адрес и порт
     server_socket.listen(1)  # прослушиваем порт от одного клиента
     print('Сервер запущен по адресу:', ADDRESS, PORT)
+    logger.info('Сервер запущен по адресу: ' + ADDRESS + ':' + str(PORT))
 ###########################################################################################################
     cars_dict = {
         'add': Car.add_car,
         'delete': Car.delete_car,
         'get': Car.get_car,
         'get_cars': Car.get_cars,
-        'edit_car': Car .edit_car
+        'edit_car': Car.edit_car
     }
     while True:
         connection, address = server_socket.accept()
         print('Клиент с адресом', address, ' подключен')
+        logger.info('Клиент с адресом' + str(address) + ' подключен')
         while True:
             try:
-                client_data = connection.recv(1024)
+                client_data = connection.recv(4096)
             except ConnectionResetError:
                 print('Клиент с адресом', address, ' отключился')
+                logger.info('Клиент с адресом' + str(address) + ' отключился')
                 break
             if not client_data:
                 print('Клиент с адресом', address, ' отключился')
+                logger.info('Клиент с адресом' + str(address) + ' отключился')
                 break
             client_data = json.loads(client_data.decode())
             print(client_data)
@@ -248,6 +215,7 @@ def launch_server():
                 new_client_dict = cars_dict.get(q)(client_data)
 
             connection.sendall(bytes(json.dumps(new_client_dict, ensure_ascii=False, default=str), 'UTF-8'))
+
 
 # Base.metadata.create_all(db_engine)
 launch_server()

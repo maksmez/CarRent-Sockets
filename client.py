@@ -1,7 +1,9 @@
 import json
 import socket
 from termcolor import colored, cprint
+
 client_socket = socket.socket()  # создаем сокет
+
 transmission_list = {
     0: 'Механическая',
     1: 'Автоматическая'
@@ -45,41 +47,38 @@ def launch_client():
         print('Введите 4 чтобы посмотреть все ТС')
         print('Введите 5 чтобы изменить ТС')
 
-
         print('Введите 0 чтобы отключиться')
 
         choice = input()
         choice = int(choice)
 
         client_data = {}  # словарь для отправки серверу
+        if choice == 0:
+            print('Завершение работы....')
+            client_socket.close()
+            break
+
         if choice < 6:
             client_data['endpoint'] = 'cars'
-
             if choice == 1:
                 client_data['action'] = 'add'
                 client_data['content'] = add_car()
                 client_data = send_and_receive(client_data)
-                if client_data['Status'] == '200':
-                    print('Авто ', client_data['content']['Brand_and_name'], 'добавлено!')
-                else:
-                    print('При добавлении произошла ошибка! ', 'Ответ ', client_data['Status'])
+                cprint(client_data['message'], 'green')
 
             if choice == 2:
                 client_data['action'] = 'delete'
                 client_data['content'] = delete_car()
                 client_data = send_and_receive(client_data)
-                if client_data['Status'] == '200':
-                    print('Авто ', client_data['content']['Brand_and_name'], 'удалено!')
-                else:
-                    print('При удалении произошла ошибка! ', 'Ответ ', client_data['Status'])
+                cprint(client_data['message'], 'green')
 
             if choice == 3:
                 client_data['action'] = 'get'
                 client_data['content'] = get_car()
                 client_data = send_and_receive(client_data)
-                if client_data['Status'] == '200':
+                if client_data['status'] == '200':
                     print("=" * 35)
-                    cprint('Данные авто:', 'green')
+                    cprint(client_data['message'], 'green')
                     print("="*35)
                     print('Id компании: ', client_data['content']['CompanyID'])
                     print('Адрес компании: ', client_data['content']['Location'])
@@ -105,62 +104,52 @@ def launch_client():
                     print('Стоимость: ', client_data['content']['Price'])
                     print("=" * 35)
                 else:
-                    print('При получении информации произошла ошибка! ', 'Ответ ', client_data['Status'])
+                    cprint(client_data['message'] + ' Код ответа: ' + client_data['status'], 'green')
 
             if choice == 4:
                 client_data['action'] = 'get_cars'
                 client_data['content'] = get_cars()
                 client_data = send_and_receive(client_data)
-                if client_data['Status'] == '200':
-                    if not client_data['content']:
+                if client_data['status'] == '200':
+                    print("=" * 35)
+                    cprint(client_data['message'], 'green')
+                    for car in client_data['content']:
                         print("=" * 35)
-                        print('Автомобилей этой категории нет!')
+                        print('Данные авто c Id:', car['Id'])
+                        print('Id компании: ', car['CompanyID'])
+                        print('Адрес компании: ', car['Location'])
+                        print('Фотографии: ', car['Photos'])
+                        print('Условия аренды: ', car['RentCondition'])
+                        print('Заголовок: ', car['Header'])
+                        if car['Driver'] == 'true':
+                            print('Водитель: есть')
+                        else:
+                            print('Водитель: нет')
+                        print('Id категории: ', car['CategoryID'])
+                        print('Категория ВУ: ', car['CategoryVU'])
+                        print('Фиксированная комиссия: ', car['FixedRate'])
+                        print('Процент комисии: ', car['Percent'])
+                        print('Марка и модель: ', car['Brand_and_name'])
+                        print('Трансмиссия: ', transmission_list[car['Transmission']])
+                        print('Двигатель: ', engine_list[car['Engine']])
+                        print('Кузов: ', car_type_list[car['Car_type']])
+                        print('Привод: ',drive_list[car['Drive']])
+                        print('Положения руля: ', wheel_drive_list[car['Wheel_drive']])
+                        print('Год выпуска: ', car['Year'])
+                        print('Мощность: ', car['Power'])
+                        print('Стоимость: ', car['Price'])
                         print("=" * 35)
-                    else:
-                        print("=" * 35)
-                        cprint('Список авто', 'green')
-                        for car in client_data['content']:
-                            print("=" * 35)
-                            print('Данные авто c Id:', car['Id'])
-                            print('Id компании: ', car['CompanyID'])
-                            print('Адрес компании: ', car['Location'])
-                            print('Фотографии: ', car['Photos'])
-                            print('Условия аренды: ', car['RentCondition'])
-                            print('Заголовок: ', car['Header'])
-                            if car['Driver'] == 'true':
-                                print('Водитель: есть')
-                            else:
-                                print('Водитель: нет')
-                            print('Id категории: ', car['CategoryID'])
-                            print('Категория ВУ: ', car['CategoryVU'])
-                            print('Фиксированная комиссия: ', car['FixedRate'])
-                            print('Процент комисии: ', car['Percent'])
-                            print('Марка и модель: ', car['Brand_and_name'])
-                            print('Трансмиссия: ', transmission_list[car['Transmission']])
-                            print('Двигатель: ', engine_list[car['Engine']])
-                            print('Кузов: ', car_type_list[car['Car_type']])
-                            print('Привод: ',drive_list[car['Drive']])
-                            print('Положения руля: ', wheel_drive_list[car['Wheel_drive']])
-                            print('Год выпуска: ', car['Year'])
-                            print('Мощность: ', car['Power'])
-                            print('Стоимость: ', car['Price'])
-                            print("=" * 35)
                 else:
-                    print('При получении информации произошла ошибка! ', 'Ответ ', client_data['Status'])
+                    cprint(client_data['message'] + ' Код ответа: ' + client_data['status'], 'green')
 
             if choice == 5:
                 client_data['action'] = 'edit_car'
                 client_data['content'] = edit_car()
                 client_data = send_and_receive(client_data)
-                if client_data['Status'] == '200':
-                    print('Авто ', client_data['content']['Brand_and_name'], 'изменено!', client_data['Status'])
+                if client_data['status'] == '200':
+                    cprint(client_data['message'], 'green')
                 else:
-                    print('При изменении произошла ошибка! ', 'Ответ ', client_data['Status'])
-
-        if choice == 0:
-            print('Завершение работы....')
-            client_socket.close()
-            break
+                    cprint(client_data['message'] + ' Код ответа: ' + client_data['status'], 'green')
 
 
 def send_and_receive(client_data):
@@ -188,7 +177,7 @@ def add_car():
     content['Header'] = input()
     print('Есть ли водитель? 1 - да, 0 - нет')
     content['Driver'] = bool(input())
-    content['Status'] = True
+    content['status'] = True
     print('Введите ID категории*')
     content['CategoryID'] = input()
     print('Введите название категории ВУ')
@@ -198,7 +187,6 @@ def add_car():
     content['FixedRate'] = input()
     print('Введите процент комиссии')
     content['Percent'] = input()
-
 
     print('Введите марку и название')
     content['Brand_and_name'] = input()
@@ -225,8 +213,7 @@ def delete_car():
     print('Введите id авто для удаления')
     choice_del = input()
     choice_del = int(choice_del)
-    content = {}
-    content['Id'] = choice_del
+    content = {'Id': choice_del}
 
     return content
 
@@ -234,8 +221,7 @@ def get_cars():
     print('Введите id категории')
     choice_car = input()
     choice_car = int(choice_car)
-    content = {}
-    content['CategoryID'] = choice_car
+    content = {'CategoryID': choice_car}
 
     return content
 
@@ -243,8 +229,7 @@ def get_car():
     print('Введите id авто')
     choice_car = input()
     choice_car = int(choice_car)
-    content = {}
-    content['Id'] = choice_car
+    content = {'Id': choice_car}
 
     return content
 
@@ -266,7 +251,7 @@ def edit_car():
     content['Header'] = input()
     print('Есть ли водитель? 1- да, 0 - нет')
     content['Driver'] = bool(input())
-    content['Status'] = True
+    content['status'] = True
     print('Введите ID категории*')
     content['CategoryID'] = input()
     print('Введите название категории ВУ')
