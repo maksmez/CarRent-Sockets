@@ -1,3 +1,4 @@
+import decimal
 import hashlib
 import uuid
 from uuid import uuid4
@@ -57,6 +58,7 @@ class Car(Base):
     Percent = Column(Numeric, nullable=True)
     car_company = relationship("Company", back_populates="company_cars")
     car_category = relationship("Category", back_populates="category_cars")
+    car_contract = relationship("Contract", back_populates="contract_car")
 
     Brand_and_name = Column(String, nullable=False)
     Transmission = Column(Integer, nullable=True, default=0)
@@ -72,6 +74,11 @@ class Car(Base):
         try:
             car = Car(**data['content'])
             car.DateDel = None
+            car.status = True
+            if data['content']['Driver'] == '1':
+                car.Driver = True
+            else:
+                car.Driver = False
             session.add(car)
             session.commit()
             data['status'] = '200'
@@ -101,10 +108,10 @@ class Car(Base):
     def get_car(data):
         try:
             car = session.query(Car).filter(Car.Id == int(data['content']['Id']), Car.DateDel == None).first()
-            if car is None:
-                data['content'] = object_to_dict(car)
+            if car is not None:
+                data['content'] = [object_to_dict(car)]
                 data['status'] = '200'
-                data['message'] = 'Просмотр ТС c id ' + str(data['content']['Id']) + ' ' + data['content']['Brand_and_name']
+                data['message'] = 'Просмотр ТС c id ' + str(data['content'][0]['Id'])
                 logger.info(data['message'] + ' ' + data['status'])
             else:
                 data['status'] = '404'
@@ -118,21 +125,27 @@ class Car(Base):
 
     def get_cars(data):
         try:
-            cars = session.query(Car).filter(Car.CategoryID == int(data['content']['CategoryID']),
-                                             Car.DateDel == None).all()
-            new_cars = []  # [{} {} {}]
-            for car in cars:
-                dict = object_to_dict(car)
-                new_cars.append(dict)
-            if new_cars:
-                data['status'] = '200'
-                data['message'] = 'Просмотр списка ТС с категорией ' + str(data['content']['CategoryID'])
-                logger.info(data['message'] + ' ' + data['status'])
-                data['content'] = new_cars
-            else:
+            category = session.query(Category).get(int(data['content']['CategoryID']))
+            if category == None:
                 data['status'] = '404'
-                data['message'] = 'ТС с категорией ' + str(data['content']['CategoryID']) + ' нет'
+                data['message'] = 'Категории с id ' + str(data['content']['CategoryID']) + ' нет'
                 logger.info(data['message'] + ' ' + data['status'])
+            else:
+                cars = category.category_cars
+                new_cars = []  # [{} {} {}]
+                for car in cars:
+                    if car.DateDel == None:
+                        dict = object_to_dict(car)
+                        new_cars.append(dict)
+                if new_cars:
+                    data['status'] = '200'
+                    data['message'] = 'Просмотр списка ТС с категорией ' + str(data['content']['CategoryID'])
+                    logger.info(data['message'] + ' ' + data['status'])
+                    data['content'] = new_cars
+                else:
+                    data['status'] = '404'
+                    data['message'] = 'ТС с категорией ' + str(data['content']['CategoryID']) + ' нет'
+                    logger.info(data['message'] + ' ' + data['status'])
         except:
             data['status'] = '500'
             data['message'] = 'При просмотре списка авто произошла ошибка'
@@ -150,7 +163,6 @@ class Car(Base):
             else:
                 data['content']['DateDel'] = None
                 # new_car = car.__dict__.update(data['content'])
-
                 car.Photos = data['content']['Photos']
                 car.Header = data['content']['Header']
                 car.CategoryID = data['content']['CategoryID']
@@ -162,8 +174,11 @@ class Car(Base):
                 car.Drive = data['content']['Drive']
                 car.Wheel_drive = data['content']['Wheel_drive']
                 car.Year = data['content']['Year']
-                car.Driver = data['content']['Driver']
-                car.status = data['content']['status']
+                if data['content']['Driver'] == '1':
+                    car.Driver = True
+                else:
+                    car.Driver = False
+                # car.status = data['content']['status']
                 car.Power = data['content']['Power']
                 car.CategoryVU = data['content']['CategoryVU']
                 car.Price = data['content']['Price']
@@ -200,7 +215,7 @@ class Person(Base):
     CategoryVuID = Column(String, nullable=False)
     NumVU = Column(String, nullable=False)
     DateDel = Column(Date, nullable=True)
-
+    client_contracts = relationship("Contract", back_populates="contract_client")
     def sign_up(data):
         try:
             new_data = data
@@ -217,9 +232,9 @@ class Person(Base):
                 person.Token = uuid.uuid4().hex
                 session.add(person)
                 session.commit()
-                new_data['content']['Name'] = person.Name
-                new_data['token'] = Person.Token
+                new_data['token'] = person.Token
                 new_data['status'] = '200'
+                new_data['content'] = []
                 new_data['message'] = 'Вы успешно зарегистрировались! Ваш Id: ' + str(person.Id)
                 logger.info(new_data['message'] + ' ' + new_data['status'])
             else:
@@ -237,14 +252,14 @@ class Person(Base):
             salted = hashlib.sha256(data['content']['Password'].encode() + salt.encode()).hexdigest()
             man = session.query(Person).filter(Person.Phone == data['content']['Phone'], Person.Password == salted, Person.DateDel == None).first()
             if man is not None:
-                data['content']['Name'] = man.Name
+                data['content'] = []
                 data['status'] = '200'
                 data['token'] = man.Token
                 data['message'] = 'Вы авторизовались. ' + 'Ваш id: ' + str(man.Id)
                 logger.info(data['message'] + ' ' + data['status'])
             else:
                 data['status'] = '404'
-                data['message'] = 'Аккаунт с телефоном ' + str(data['content']['Phone']) + ' не найден'
+                data['message'] = 'Неверный телефон или пароль. Попробуйте снова. '
                 logger.info(str(data['message']) + ' ' + data['status'])
         except:
             data['status'] = '500'
@@ -255,7 +270,9 @@ class Person(Base):
     def get_client(data):
         try:
             man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
-            data['content'] = object_to_dict(man)
+            data['content'] = [object_to_dict(man)]
+            del(data['content'][0]['Password'])
+            del(data['content'][0]['Token'])
             data['token'] = man.Token
             data['status'] = '200'
             data['message'] = 'Данные клиента с id ' + str(man.Id)
@@ -272,7 +289,7 @@ class Person(Base):
             man.DateDel = datetime.date.today()
             session.add(man)
             session.commit()
-            data = {}
+            data['content'] = []
             data['status'] = '200'
             data['message'] = 'Аккаунт с id ' + str(man.Id) + ' удален'
             logger.info(data['message'] + ' ' + data['status'])
@@ -282,6 +299,58 @@ class Person(Base):
             logger.info(str(data['message']) + ' ' + data['status'])
 
         return data
+
+    def edit_pass(data):
+        try:
+            man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
+            if man is not None:
+                salted = hashlib.sha256(data['content']['Password'].encode() + salt.encode()).hexdigest()
+                man.Password = salted
+                session.add(man)
+                session.commit()
+                data['content'] = []
+                data['status'] = '200'
+                data['token'] = man.Token
+                data['message'] = 'Пароль изменен! Ваш Id: ' + str(man.Id)
+                logger.info(data['message'] + ' ' + data['status'])
+            else:
+                data['status'] = '500'
+                data['message'] = 'Пользователь с таким телефоном не найден!'
+                logger.info(data['message'] + ' ' + data['status'])
+        except:
+            data['status'] = '500'
+            data['message'] = 'При смене пароля произошла ошибка'
+            data['token'] = data['token']
+            logger.info(data['message'] + ' ' + data['status'])
+        return data
+
+    def edit_client(data):
+        try:
+            man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
+            if man is not None:
+                man.Name = data['content']['Name']
+                man.Surname = data['content']['Surname']
+                man.Birthday = datetime.datetime.strptime(data['content']['Birthday'], "%d-%m-%Y")
+                man.Email = data['content']['Email']
+                man.CategoryVuID = data['content']['CategoryVuID']
+                man.NumVU = data['content']['NumVU']
+                session.add(man)
+                session.commit()
+                data['content'] = []
+                data['token'] = man.Token
+                data['status'] = '200'
+                data['message'] = 'Данные вашего аккаунта измнены! Ваш Id: ' + str(man.Id)
+                logger.info(data['message'] + ' ' + data['status'])
+            else:
+                data['status'] = '404'
+                data['message'] = 'Пользователь не найден!'
+                logger.info(data['message'] + ' ' + data['status'])
+        except:
+            data['status'] = '500'
+            data['message'] = 'При изменении произошла ошибка'
+            logger.info(data['message'] + ' ' + data['status'])
+        return data
+
 
 class Company(Base):
     __tablename__ = 'Company'
@@ -306,8 +375,87 @@ class Category(Base):
     category_cars = relationship("Car", back_populates="car_category")
 
 
+class Contract(Base):
+    __tablename__ = 'Contract'
+    Id = Column(Integer, primary_key=True)  # pk
+    ClientId = Column(Integer, ForeignKey('Person.Id'), nullable=False)  # fk
+    CarId = Column(Integer, ForeignKey('Cars.Id'), nullable=False)  # fk
+    DateStartContract = Column(Date, nullable=False)
+    DateEndContract = Column(Date, nullable=False)
+    Driver = Column(Boolean, nullable=False)
+    Note = Column(String, nullable=True)
+    Status = Column(Integer, nullable=False)
+    Comission = Column(Numeric, nullable=False)
+    Cost = Column(Integer, nullable=False)
+    DateDel = Column(Date, nullable=True)
+    contract_client = relationship("Person", back_populates="client_contracts")
+    contract_car = relationship("Car", back_populates="car_contract")
+
+    def add_order(data):
+        try:
+            man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
+            car = session.query(Car).filter(Car.Id == data['content']['CarId'], Car.DateDel == None).first()
+            if man is not None:
+                start = datetime.datetime.strptime(data['content']['DateStartContract'], "%d-%m-%Y")
+                end = datetime.datetime.strptime(data['content']['DateEndContract'], "%d-%m-%Y")
+                if end == start:
+                    rez = 1
+                else:
+                    rez = (end - start).days
+                cost = rez * car.Price
+                car_per = car.Percent
+                car_fix = car.FixedRate
+                per1 = car_per * decimal.Decimal(0.01)
+                per2 = round((per1 * decimal.Decimal(cost)) + car_fix, 2)
+
+                contract = Contract(**data['content'])
+                contract.DateStartContract = datetime.datetime.strptime(data['content']['DateStartContract'], "%d-%m-%Y")
+                contract.DateEndContract = datetime.datetime.strptime(data['content']['DateEndContract'], "%d-%m-%Y")
+                contract.ClientId = man.Id
+                contract.CarId = car.Id
+                contract.Cost = cost
+                contract.Comission = per2
+                contract.Driver = False
+                contract.Status = 0
+                session.add(contract)
+                session.commit()
+                data['content'] = []
+                data['status'] = '200'
+                data['message'] = 'Заявка добавлена! Id заявки: ' + str(contract.Id)
+                logger.info(data['message'] + ' ' + data['status'])
+            else:
+                data['status'] = '500'
+                data['message'] = 'Пользователь не найден!'
+                logger.info(data['message'] + ' ' + data['status'])
+        except:
+            data['status'] = '500'
+            data['message'] = 'Ошибка сервера'
+            logger.info(data['message'] + ' ' + data['status'])
+        return data
+
+    def get_order(data):
+        # try:
+        contract = session.query(Contract).filter(Contract.Id == int(data['content']['Id']), Contract.DateDel == None).first()
+        man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
+        l = list(filter(lambda x: x.Id == int(data['content']['Id']), man.client_contracts))
+        contract = l[0] if l != [] else None
+        if contract is not None:
+            data['content'] = [object_to_dict(contract)]
+            c = contract.contract_car.Id
+            data['content'][0]['CarId'] = contract.contract_car.Brand_and_name + ': id ' + str(contract.contract_car.Id)
+            data['status'] = '200'
+            data['message'] = 'Просмотр заявки c id ' + str(data['content'][0]['Id'])
+            logger.info(data['message'] + ' ' + data['status'])
+        else:
+            data['status'] = '404'
+            data['message'] = 'Заявка с id ' + str(data['content']['Id']) + ' не найдена'
+            logger.info(str(data['message']) + ' ' + data['status'])
+        # except:
+        #     data['status'] = '500'
+        #     data['message'] = 'Ошибка сервера'
+        #     logger.info(str(data['message']) + ' ' + data['status'])
+        return data
 ###########################################################################################################
-# Base.metadata.create_all(db_engine)
 def launch_server():
     ADDRESS = 'localhost'
     PORT = 9090
@@ -323,17 +471,22 @@ def launch_server():
         'delete': Car.delete_car,
         'get': Car.get_car,
         'get_cars': Car.get_cars,
-        'edit_car': Car.edit_car
+        'edit_car': Car.edit_car,
+        'add_car': Car.add_car,
+        'get_car': Car.get_car
     }
     person_dict = {
         'registration': Person.sign_up,
         'auth': Person.sign_in,
         'get_client': Person.get_client,
-        'del_client': Person.del_client
-        # 'delete': Car.delete_car,
-        # 'get': Car.get_car,
-        # 'get_cars': Car.get_cars,
-        # 'edit_car': Car.edit_car
+        'del_client': Person.del_client,
+        'edit_pass': Person.edit_pass,
+        'edit_client': Person.edit_client
+    }
+
+    contract_dict = {
+        'add_order': Contract.add_order,
+        'get_order': Contract.get_order,
     }
     while True:
         connection, address = server_socket.accept()
@@ -359,6 +512,9 @@ def launch_server():
             if client_data['endpoint'] == 'clients':
                 q = client_data['action']
                 new_client_dict = person_dict.get(q)(client_data)
+            if client_data['endpoint'] == 'orders':
+                q = client_data['action']
+                new_client_dict = contract_dict.get(q)(client_data)
             connection.sendall(bytes(json.dumps(new_client_dict, ensure_ascii=False, default=str), 'UTF-8'))
 
 

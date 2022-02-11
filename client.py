@@ -1,36 +1,59 @@
 import datetime
+import hashlib
 import json
 import socket
 from termcolor import colored, cprint
 
 client_socket = socket.socket()  # создаем сокет
 
-transmission_list = {
-    0: 'Механическая',
-    1: 'Автоматическая'
-}
-engine_list = {
-    0: 'Бензиновый',
-    1: 'Дизельный'
-}
-car_type_list = {
-    0: 'Седан',
-    1: 'Кроссовер',
-    2: 'Универсал',
-    3: 'Хэтчбек',
-    4: 'Купе',
-    5: 'Микро'
-}
-drive_list = {
-    0: 'Полный',
-    1: 'Задний',
-    2: 'Передний'
-}
-wheel_drive_list = {
-    0: 'Правый',
-    1: 'Левый'
+car_values_list = {
+    'Transmission': ['Механическая', 'Автоматическая'],
+    'Engine': ['Бензиновый', 'Дизельный'],
+    'Car_type': ['Седан', 'Кроссовер', 'Универсал', 'Хэтчбек', 'Купе', 'Микро'],
+    'Drive': ['Полный', 'Задний', 'Передний'],
+    'Wheel_drive': ['Правый', 'Левый']
 }
 
+fields_dict = {
+    'cars': {
+        'CompanyID': 'Id компании',
+        'Location':  'Адрес компании',
+        'Photos': 'Пути к фотографиям',
+        'RentCondition': 'Условия аренды',
+        'Header': 'Заголовок',
+        'Driver': 'Есть ли водитель',
+        'CategoryID': 'ID категории',
+        'CategoryVU': 'Название категории ВУ',
+        'FixedRate': 'Фиксированная комиссия',
+        'Percent': 'Процент комиссии',
+        'Brand_and_name': 'Марка и название',
+        'Transmission': 'Трансмиссия',
+        'Engine': 'Двигатель',
+        'Car_type': 'Тип кузова',
+        'Drive': 'Привод',
+        'Wheel_drive': 'Положение руля',
+        'Year': 'Год выпуска',
+        'Power': 'Мощность',
+        'Price': 'Стоимость'
+    },
+    'orders': {
+        'DateStartContract': 'Дата начала аренды',
+        'DateEndContract': 'Дата окончания аренды',
+        'Status': 'Статус заявки',
+        'Cost': 'Стоимость заявки',
+        'CarId': 'Авто'
+    },
+    'clients': {
+        'Name': 'Имя',
+        'Surname': 'Фамилия',
+        'Birthday': 'Дата рождения',
+        'Phone': 'Телефон',
+        'Email': 'Email',
+        'CategoryVuID': 'Категории',
+        'NumVU': 'Номер ВУ',
+        'Password': 'Пароль'
+    }
+    }
 
 def launch_client():
     choice_dict = {
@@ -38,6 +61,14 @@ def launch_client():
         2: ['clients', 'auth', sign_in],
         3: ['clients', 'get_client', get_client],
         4: ['clients', 'del_client', del_client],
+        5: ['clients', 'edit_pass', edit_pass],
+        6: ['clients', 'edit_client', edit_client],
+        7: ['cars', 'get_cars', get_cars],
+        8: ['cars', 'get_car', get_car],
+        9: ['orders', 'add_order', add_order],
+        10: ['orders', 'get_order', get_order],
+        101: ['cars', 'edit_car', edit_car],
+        100: ['clients', 'log_out', log_out],
     }
     try:
         client_socket.connect(('localhost', 9090))  # подключаемся к серверу
@@ -45,8 +76,9 @@ def launch_client():
         print('Сервер не запущен')
         return False
     cprint('Клиент запущен!', 'yellow')
+    client_data = {}  # словарь для отправки серверу
+
     while True:
-        client_data = {}  # словарь для отправки серверу
         while True:
             if not ('token' in client_data):
                 cprint('Выберите действие:', 'blue')
@@ -54,140 +86,42 @@ def launch_client():
                 print('Введите 2 чтобы авторизоваться:')
                 print('Введите 0 чтобы завершить работу:')
             else:
-                cprint('Привет, ' + client_data['content']['Name'] + '!', 'blue')
-                print('Выберите действие:')
-                print('Введите 3 чтобы посмотреть личную информацию:')
-                print('Введите 4 чтобы удалить ваш аккаунт:')
+                cprint('Выберите действие:', 'blue')
+                print('Введите 3 чтобы посмотреть личную информацию')
+                print('Введите 4 чтобы удалить ваш аккаунт')
+                print('Введите 5 чтобы сменить пароль')
+                print('Введите 6 чтобы изменить свои данные')
+                print('Введите 7 чтобы посмотреть каталог')
+                print('Введите 8 чтобы посмотреть авто')
+                print('Введите 9 чтобы добавить заявку')
+                print('Введите 10 чтобы посмотреть заявку')
+                # print('Введите 9 чтобы изменить авто')
+                print('Введите 100 чтобы выйти из аккаунта')
+                print('Введите 0 чтобы завершить работу')
             try:
-               choice = input()
-               choice = int(choice)
+                choice = input()
+                choice = int(choice)
             except ValueError:
                 cprint('Ошибка! Введите цифру для выбора', 'red')
                 break
-
             try:
                 if choice == 0:
                     client_socket.close()
+                    cprint('Заврешние работы...', 'blue')
                     return
                 ch_dc = choice_dict.get(choice)
                 client_data['endpoint'] = ch_dc[0]
                 client_data['action'] = ch_dc[1]
+                if (not 'token' in client_data and choice > 2):
+                    cprint('Это действие доступно только для авторизованных пользователей!', 'red')
+                    break
+                elif ('token' in client_data and choice < 3):
+                    cprint('Это действие недоступно!', 'red')
+                    break
                 client_data = ch_dc[2](client_data)
             except TypeError:
                 cprint('Ошибка! Такого пункта нет!', 'red')
                 break
-
-
-            # if choice == 1:
-            #
-            #
-            #
-            #
-            # print('Введите 1 чтобы добавить ТС')
-            # print('Введите 2 чтобы удалить ТС')
-            # print('Введите 3 чтобы посмотреть данные ТС')
-            # print('Введите 4 чтобы посмотреть все ТС')
-            # print('Введите 5 чтобы изменить ТС')
-            #
-            # print('Введите 0 чтобы отключиться')
-
-
-
-
-
-
-            # if choice < 6:
-            #     client_data['endpoint'] = 'cars'
-            #     if choice == 1:
-            #         client_data['action'] = 'add'
-            #         client_data['content'] = add_car()
-            #         client_data = send_and_receive(client_data)
-            #         cprint(client_data['message'], 'green')
-            #
-            #     if choice == 2:
-            #         client_data['action'] = 'delete'
-            #         client_data['content'] = delete_car()
-            #         client_data = send_and_receive(client_data)
-            #         cprint(client_data['message'], 'green')
-            #
-            #     if choice == 3:
-            #         client_data['action'] = 'get'
-            #         client_data['content'] = get_car()
-            #         client_data = send_and_receive(client_data)
-            #         if client_data['status'] == '200':
-            #             print("=" * 35)
-            #             cprint(client_data['message'], 'green')
-            #             print("="*35)
-            #             print('Id компании: ', client_data['content']['CompanyID'])
-            #             print('Адрес компании: ', client_data['content']['Location'])
-            #             print('Фотографии: ', client_data['content']['Photos'])
-            #             print('Условия аренды: ', client_data['content']['RentCondition'])
-            #             print('Заголовок: ', client_data['content']['Header'])
-            #             if client_data['content']['Driver'] == 'true':
-            #                 print('Водитель: есть')
-            #             else:
-            #                 print('Водитель: нет')
-            #             print('Id категории: ', client_data['content']['CategoryID'])
-            #             print('Категория ВУ: ', client_data['content']['CategoryVU'])
-            #             print('Фиксированная комиссия: ', client_data['content']['FixedRate'])
-            #             print('Процент комисии: ', client_data['content']['Percent'])
-            #             print('Марка и модель: ', client_data['content']['Brand_and_name'])
-            #             print('Трансмиссия: ', transmission_list[client_data['content']['Transmission']])
-            #             print('Двигатель: ', engine_list[client_data['content']['Engine']])
-            #             print('Кузов: ', car_type_list[client_data['content']['Car_type']])
-            #             print('Привод: ', drive_list[client_data['content']['Drive']])
-            #             print('Положения руля: ', wheel_drive_list[client_data['content']['Wheel_drive']])
-            #             print('Год выпуска: ', client_data['content']['Year'])
-            #             print('Мощность: ', client_data['content']['Power'])
-            #             print('Стоимость: ', client_data['content']['Price'])
-            #             print("=" * 35)
-            #         else:
-            #             cprint(client_data['message'] + ' Код ответа: ' + client_data['status'], 'green')
-            #
-            #     if choice == 4:
-            #         client_data['action'] = 'get_cars'
-            #         client_data['content'] = get_cars()
-            #         client_data = send_and_receive(client_data)
-            #         if client_data['status'] == '200':
-            #             print("=" * 35)
-            #             cprint(client_data['message'], 'green')
-            #             for car in client_data['content']:
-            #                 print("=" * 35)
-            #                 print('Данные авто c Id:', car['Id'])
-            #                 print('Id компании: ', car['CompanyID'])
-            #                 print('Адрес компании: ', car['Location'])
-            #                 print('Фотографии: ', car['Photos'])
-            #                 print('Условия аренды: ', car['RentCondition'])
-            #                 print('Заголовок: ', car['Header'])
-            #                 if car['Driver'] == 'true':
-            #                     print('Водитель: есть')
-            #                 else:
-            #                     print('Водитель: нет')
-            #                 print('Id категории: ', car['CategoryID'])
-            #                 print('Категория ВУ: ', car['CategoryVU'])
-            #                 print('Фиксированная комиссия: ', car['FixedRate'])
-            #                 print('Процент комисии: ', car['Percent'])
-            #                 print('Марка и модель: ', car['Brand_and_name'])
-            #                 print('Трансмиссия: ', transmission_list[car['Transmission']])
-            #                 print('Двигатель: ', engine_list[car['Engine']])
-            #                 print('Кузов: ', car_type_list[car['Car_type']])
-            #                 print('Привод: ',drive_list[car['Drive']])
-            #                 print('Положения руля: ', wheel_drive_list[car['Wheel_drive']])
-            #                 print('Год выпуска: ', car['Year'])
-            #                 print('Мощность: ', car['Power'])
-            #                 print('Стоимость: ', car['Price'])
-            #                 print("=" * 35)
-            #         else:
-            #             cprint(client_data['message'] + ' Код ответа: ' + client_data['status'], 'green')
-            #
-            #     if choice == 5:
-            #         client_data['action'] = 'edit_car'
-            #         client_data['content'] = edit_car()
-            #         client_data = send_and_receive(client_data)
-            #         if client_data['status'] == '200':
-            #             cprint(client_data['message'], 'green')
-            #         else:
-            #             cprint(client_data['message'] + ' Код ответа: ' + client_data['status'], 'green')
 
 
 def send_and_receive(client_data):
@@ -199,62 +133,45 @@ def send_and_receive(client_data):
     return client_data
 
 def print_content(client_data):
+    if 'Password' in client_data['content']:
+        password = client_data['content']['Password']
+        client_data['content']['Password'] = hashlib.sha256(password.encode()).hexdigest()
+
     client_data = send_and_receive(client_data)
     if client_data['status'] == '200':
         cprint(client_data['message'], 'green')
+        print_client_data_fields(client_data)
     else:
         cprint(client_data['message'], 'red')
     return client_data
 
+
+def input_client_data_fields(client_data):
+    for field in fields_dict[client_data['endpoint']]:
+        if field == 'Password':
+            continue
+        print('Введите ' + fields_dict[client_data['endpoint']][field])
+        client_data['content'][field] = input()
+    return client_data
+
+def print_client_data_fields(client_data):
+    for num in range(len(client_data['content'])):
+        for field in fields_dict[client_data['endpoint']]:
+            if field == 'Password':
+                continue
+            a = client_data['content'][num][field]
+            if field in car_values_list:
+                print(fields_dict[client_data['endpoint']][field] + ': ' + car_values_list[field][a])
+            else:
+                print(fields_dict[client_data['endpoint']][field] + ': ' + str(a))
+        cprint("=" * 35, 'green')
+
 ###########CAR###############################################
-def add_car():
-    #  Поля отмеченные * - не обязательные или имеют значение по умолчанию
-    #  Проблема с пустыми полями
-    content = {}
-
-    print('Введите Id компании*')
-    content['CompanyID'] = input()
-    print('Введите адрес компании')
-    content['Location'] = input()
-    print('Введите пути к фотографиям*')
-    content['Photos'] = input()
-    print('Введите условия аренды*')
-    content['RentCondition'] = input()
-    print('Введите заголовок')
-    content['Header'] = input()
-    print('Есть ли водитель? 1 - да, 0 - нет')
-    content['Driver'] = bool(input())
-    content['status'] = True
-    print('Введите ID категории*')
-    content['CategoryID'] = input()
-    print('Введите название категории ВУ')
-    content['CategoryVU'] = input()
-    content['DateDel'] = ''
-    print('Введите фиксированную комиссию')
-    content['FixedRate'] = input()
-    print('Введите процент комиссии')
-    content['Percent'] = input()
-
-    print('Введите марку и название')
-    content['Brand_and_name'] = input()
-    print('Введите трансмиссию', '\n', '0 - механическая', '\n', '1 - автоматическая')
-    content['Transmission'] = input()
-    print('Введите двигатель*', '\n', '0 - бензиновый', '\n', '1 - дизельный')
-    content['Engine'] = input()
-    print('Введите типа кузова*' , '\n', '0 - Седан', '\n', '1 - Кроссовер', '\n', '2 - Универсал', '\n', '3 - Хэтчбек', '\n', '4 - Купе', '\n' , '5 - Микро')
-    content['Car_type'] = input()
-    print('Введите Привода*', '\n', '0 - Полный', '\n', '1 - Задний', '\n', '3 - Передний')
-    content['Drive'] = input()
-    print('Введите Положения руля*', '\n', '0 - Правый', '\n', '1 - Левый')
-    content['Wheel_drive'] = input()
-    print('Введите год выпуска')
-    content['Year'] = input()
-    print('Введите мощность')
-    content['Power'] = input()
-    print('Введите стоимость')
-    content['Price'] = input()
-
-    return content
+def add_car(client_data):
+    client_data['content'] = {}
+    input_client_data_fields(client_data)
+    client_data = print_content(client_data)
+    return client_data
 
 def delete_car():
     print('Введите id авто для удаления')
@@ -264,113 +181,55 @@ def delete_car():
 
     return content
 
-def get_cars():
-    print('Введите id категории')
-    choice_car = input()
-    choice_car = int(choice_car)
-    content = {'CategoryID': choice_car}
+def get_cars(client_data):
+    print('Введите ' + fields_dict[client_data['endpoint']]['CategoryID'])
+    choice_car = int(input())
+    client_data['content'] = {}
+    client_data['content']['CategoryID'] = choice_car
+    client_data = print_content(client_data)
 
-    return content
+    return client_data
 
-def get_car():
+def get_car(client_data):
     print('Введите id авто')
-    choice_car = input()
-    choice_car = int(choice_car)
-    content = {'Id': choice_car}
+    choice_car = int(input())
+    client_data['content'] = {}
+    client_data['content']['Id'] = choice_car
+    client_data = print_content(client_data)
 
-    return content
+    return client_data
 
-def edit_car():
+def edit_car(client_data):
     #  Поля отмеченные * - не обязательные или имеют значение по умолчанию
     #  Проблема с пустыми полями
-    content = {}
     print('Введите Id ТС')
-    content['Id'] = input()
-    print('Введите Id компании*')
-    content['CompanyID'] = input()
-    print('Введите адрес компании')
-    content['Location'] = input()
-    print('Введите пути к фотографиям*')
-    content['Photos'] = input()
-    print('Введите условия аренды*')
-    content['RentCondition'] = input()
-    print('Введите заголовок')
-    content['Header'] = input()
-    print('Есть ли водитель? 1- да, 0 - нет')
-    content['Driver'] = bool(input())
-    content['status'] = True
-    print('Введите ID категории*')
-    content['CategoryID'] = input()
-    print('Введите название категории ВУ')
-    content['CategoryVU'] = input()
-    content['DateDel'] = ''
-    print('Введите фиксированную комиссию')
-    content['FixedRate'] = input()
-    print('Введите процент комиссии')
-    content['Percent'] = input()
+    client_data['content'] = {}
+    client_data['content']['Id'] = int(input())
+    input_client_data_fields(client_data)
+    client_data = print_content(client_data)
+    return client_data
 
-    print('Введите марку и название')
-    content['Brand_and_name'] = input()
-    print('Введите трансмиссию', '\n', '0 - механическая', '\n', '1 - автоматическая')
-    content['Transmission'] = input()
-    print('Введите двигатель*', '\n', '0 - бензиновый', '\n', '1 - дизельный')
-    content['Engine'] = input()
-    print('Введите типа кузова*' , '\n', '0 - Седан', '\n', '1 - Кроссовер', '\n', '2 - Универсал', '\n', '3 - Хэтчбек', '\n', '4 - Купе', '\n' , '5 - Микро')
-    content['Car_type'] = input()
-    print('Введите Привода*', '\n', '0 - Полный', '\n', '1 - Задний', '\n', '3 - Передний')
-    content['Drive'] = input()
-    print('Введите Положения руля*', '\n', '0 - Правый', '\n', '1 - Левый')
-    content['Wheel_drive'] = input()
-    print('Введите год выпуска')
-    content['Year'] = input()
-    print('Введите мощность')
-    content['Power'] = input()
-    print('Введите стоимость')
-    content['Price'] = input()
-
-    return content
 ###########CAR###############################################
+###########Person###############################################
+
 def sign_up(client_data):
     client_data['content'] = {}
-    print('Введите имя')
-    client_data['content']['Name'] = input()
-    print('Введите фамилию')
-    client_data['content']['Surname'] = input()
-    print('Введите дату рождения в формате дд-мм-гггг')
-    client_data['content']['Birthday'] = input()
-    print('Введите телефон')
-    client_data['content']['Phone'] = input()
-    print('Введите Email * не обязательное поле')
-    client_data['content']['Email'] = input()
-    print('Введите категории ВУ через запятую без пробелов')
-    client_data['content']['CategoryVuID'] = input()
-    print('Введите номер ВУ')
-    client_data['content']['NumVU'] = input()
-    print('Введите пароль')
-    client_data['content']['Password'] = input()
-
+    input_client_data_fields(client_data)
     client_data = print_content(client_data)
     return client_data
 
 def sign_in(client_data):
     client_data['content'] = {}
-    print('Введите номер телефона')
+    print('Введите ' + fields_dict[client_data['endpoint']]['Phone'])
     client_data['content']['Phone'] = input()
-    print('Введите пароль')
+    print('Введите ' + fields_dict[client_data['endpoint']]['Password'])
     client_data['content']['Password'] = input()
     client_data = print_content(client_data)
+
     return client_data
 
 def get_client(client_data):
     new_client_data = print_content(client_data)
-    print('Ваше имя: ' + new_client_data['content']['Name'])
-    print('Ваша фамилия : ' + new_client_data['content']['Surname'])
-    print('Ваша дата рождения : ' + new_client_data['content']['Birthday'])
-    print('Ваш телефон : ' + new_client_data['content']['Phone'])
-    print('Ваш Email : ' + new_client_data['content']['Email'])
-    print('Ваши категории ВУ : ' + new_client_data['content']['CategoryVuID'])
-    print('Ваш номер ВУ : ' + new_client_data['content']['NumVU'])
-
     return new_client_data
 
 def del_client(client_data):
@@ -385,5 +244,49 @@ def del_client(client_data):
 
     return client_data
 
-launch_client()
+def log_out(client_data):
+    client_data = {}
+    cprint('Вы вышли из аккаунта!', 'blue')
+    return client_data
 
+def edit_pass(client_data):
+    print('Введите новый пароль')
+    new_password1 = str(input())
+    print('Повторите пароль')
+    new_password2 = str(input())
+    if new_password1 == new_password2:
+        client_data['content'] = {}
+        client_data['content']['Password'] = new_password2
+        client_data = print_content(client_data)
+    else:
+        cprint('Пароли не совпадают, попробуйте снова!', 'red')
+    return client_data
+
+def edit_client(client_data):
+    client_data['content'] = {}
+    input_client_data_fields(client_data)
+    client_data = print_content(client_data)
+    return client_data
+###########Person###############################################
+###########Order###############################################
+def add_order(client_data):
+    client_data['content'] = {}
+
+    print('Введите Id авто')
+    client_data['content']['CarId'] = input()
+    print('Введите дату начала аренды в формате дд-мм-гггг')
+    client_data['content']['DateStartContract'] = input()
+    print('Введите дату конца аренды в формате дд-мм-гггг')
+    client_data['content']['DateEndContract'] = input()
+    client_data = print_content(client_data)
+    return client_data
+
+def get_order(client_data):
+    print('Введите id заявки')
+    choice_order = int(input())
+    client_data['content'] = {}
+    client_data['content']['Id'] = choice_order
+    client_data = print_content(client_data)
+
+    return client_data
+launch_client()
