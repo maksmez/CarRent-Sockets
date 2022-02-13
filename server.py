@@ -1,8 +1,10 @@
 import decimal
 import hashlib
 import uuid
+from time import sleep
 from uuid import uuid4
 
+import yaml
 from sqlalchemy import create_engine, Integer, String, Column, Date, ForeignKey, Numeric, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 import datetime
@@ -10,33 +12,61 @@ import socket
 import json
 from sqlalchemy.orm import Session, relationship
 import logging
+import logging.config
 import configparser
 import datetime
+import tarantool
+from termcolor import colored, cprint
+import threading
 
-config = configparser.ConfigParser()  # создаём объект парсера
-config.read("config.ini")
 
-# db_engine = create_engine("postgresql+psycopg2://root:pass@localhost/postgres")
-db_engine = create_engine("sqlite:///database.db")
-Base = declarative_base()
-session = Session(bind=db_engine)
-salt = config['Salt']['salt']
+with open('config_server') as config_server:
+    config = yaml.safe_load(config_server)
+# tarantool_space.insert((7,'7777a2sd7as2d7a7d7asd7adasdas'))  # вставка данных (id и token должны быть уникальными т.к индексы)
+# tarantool_space.replace((5, '111112nhfhsfhsdfhsdhf'))  # изменение данных
+# tarantool_space.delete((6))  # удаляет запись по id
+# connection_tarantool.call('box.space.user_token:truncate', ())  # удаление всех записей
+# print(tarantool_space.select())  # поиск записи по id, если (), то вывод всех
+
+
+
+try:
+    connection_tarantool = tarantool.connect(config['connection_string_tarantool_ip'], config['connection_string_tarantool_port'] )
+    tarantool_space = connection_tarantool.space('user_token')
+    # db_engine = create_engine(config['connection_string_postgresql'])
+    db_engine = create_engine(config['connection_string_SQLite'])
+    db_engine.connect()
+    Base = declarative_base()
+    session = Session(bind=db_engine)
+except tarantool.error.NetworkError:
+    cprint('Tarantool не подключен!!', 'red')
+    exit()
+except:
+    cprint('SQLite не подключен!!', 'red')
+    exit()
+
+salt = config['salt']
 
 #########################################################################################
+
+file_log = logging.FileHandler('server_logger.log')
+console_out = logging.StreamHandler()
 logging.basicConfig(
     level=logging.DEBUG,
     format="[%(asctime)s] - %(levelname)s - %(name)s - %(message)s",
     datefmt="%d/%b/%Y %H:%M:%S",
-    filename="server_logger.log")
+    handlers=(file_log, console_out)
+)
+# logging.config.dictConfig(config['logger'])
+# logger = logging.getLogger('dev')
+# logger.setLevel(logging.INFO)
 logger = logging.getLogger('server')
-
 
 #########################################################################################
 
 def object_to_dict(obj):  # преобразоваение объекта в словарь
     return {x.name: getattr(obj, x.name)
             for x in obj.__table__.columns}
-
 
 #########################################################################################
 
@@ -87,7 +117,7 @@ class Car(Base):
         except:
             data['status'] = '500'
             data['message'] = 'При добавлении ТС произошла ошибка'
-            logger.info(data['message'] + ' ' + data['status'])
+            logger.error(data['message'] + ' ' + data['status'])
 
         return data
 
@@ -102,7 +132,7 @@ class Car(Base):
         except:
             data['status'] = '404'
             data['message'] = 'ТС с id ' + str(data['content']['Id']) + ' не найдено'
-            logger.info(str(data['message']) + ' ' + data['status'])
+            logger.error(str(data['message']) + ' ' + data['status'])
         return data
 
     def get_car(data):
@@ -116,11 +146,11 @@ class Car(Base):
             else:
                 data['status'] = '404'
                 data['message'] = 'ТС с id ' + str(data['content']['Id']) + ' не найдено'
-                logger.info(str(data['message']) + ' ' + data['status'])
+                logger.error(str(data['message']) + ' ' + data['status'])
         except:
             data['status'] = '500'
             data['message'] = 'Ошибка сервера'
-            logger.info(str(data['message']) + ' ' + data['status'])
+            logger.error(str(data['message']) + ' ' + data['status'])
         return data
 
     def get_cars(data):
@@ -129,7 +159,7 @@ class Car(Base):
             if category == None:
                 data['status'] = '404'
                 data['message'] = 'Категории с id ' + str(data['content']['CategoryID']) + ' нет'
-                logger.info(data['message'] + ' ' + data['status'])
+                logger.error(data['message'] + ' ' + data['status'])
             else:
                 cars = category.category_cars
                 new_cars = []  # [{} {} {}]
@@ -145,7 +175,7 @@ class Car(Base):
                 else:
                     data['status'] = '404'
                     data['message'] = 'ТС с категорией ' + str(data['content']['CategoryID']) + ' нет'
-                    logger.info(data['message'] + ' ' + data['status'])
+                    logger.error(data['message'] + ' ' + data['status'])
         except:
             data['status'] = '500'
             data['message'] = 'При просмотре списка авто произошла ошибка'
@@ -159,7 +189,7 @@ class Car(Base):
             if car is None:
                 data['status'] = '404'
                 data['message'] = 'ТС с id ' + str(data['content']['Id'] + ' не найдено!')
-                logger.info(data['message'] + ' ' + data['status'])
+                logger.error(data['message'] + ' ' + data['status'])
             else:
                 data['content']['DateDel'] = None
                 # new_car = car.__dict__.update(data['content'])
@@ -195,7 +225,7 @@ class Car(Base):
         except:
             data['status'] = '500'
             data['message'] = 'Произошла ошибка редактирования ТС с id ' + str(data['content']['Id'])
-            logger.info(data['message'] + ' ' + data['status'])
+            logger.error(data['message'] + ' ' + data['status'])
         return data
 
 
@@ -216,6 +246,7 @@ class Person(Base):
     NumVU = Column(String, nullable=False)
     DateDel = Column(Date, nullable=True)
     client_contracts = relationship("Contract", back_populates="contract_client")
+
     def sign_up(data):
         try:
             new_data = data
@@ -232,6 +263,8 @@ class Person(Base):
                 person.Token = uuid.uuid4().hex
                 session.add(person)
                 session.commit()
+                tarantool_space.insert(
+                    (person.Id, person.Token))  # вставка данных (id и token должны быть уникальными т.к индексы)
                 new_data['token'] = person.Token
                 new_data['status'] = '200'
                 new_data['content'] = []
@@ -240,17 +273,18 @@ class Person(Base):
             else:
                 new_data['status'] = '500'
                 new_data['message'] = 'Пользователь с таким телефоном уже зарегистрирован!'
-                logger.info(new_data['message'] + ' ' + new_data['status'])
+                logger.error(new_data['message'] + ' ' + new_data['status'])
         except:
             new_data['status'] = '500'
             new_data['message'] = 'При регистрации произошла ошибка'
-            logger.info(new_data['message'] + ' ' + new_data['status'])
+            logger.error(new_data['message'] + ' ' + new_data['status'])
         return new_data
 
     def sign_in(data):
         try:
             salted = hashlib.sha256(data['content']['Password'].encode() + salt.encode()).hexdigest()
-            man = session.query(Person).filter(Person.Phone == data['content']['Phone'], Person.Password == salted, Person.DateDel == None).first()
+            man = session.query(Person).filter(Person.Phone == data['content']['Phone'], Person.Password == salted,
+                                               Person.DateDel == None).first()
             if man is not None:
                 data['content'] = []
                 data['status'] = '200'
@@ -260,19 +294,19 @@ class Person(Base):
             else:
                 data['status'] = '404'
                 data['message'] = 'Неверный телефон или пароль. Попробуйте снова. '
-                logger.info(str(data['message']) + ' ' + data['status'])
+                logger.error(str(data['message']) + ' ' + data['status'])
         except:
             data['status'] = '500'
             data['message'] = 'Ошибка сервера'
-            logger.info(str(data['message']) + ' ' + data['status'])
+            logger.error(str(data['message']) + ' ' + data['status'])
         return data
 
     def get_client(data):
         try:
             man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
             data['content'] = [object_to_dict(man)]
-            del(data['content'][0]['Password'])
-            del(data['content'][0]['Token'])
+            del (data['content'][0]['Password'])
+            del (data['content'][0]['Token'])
             data['token'] = man.Token
             data['status'] = '200'
             data['message'] = 'Данные клиента с id ' + str(man.Id)
@@ -280,7 +314,7 @@ class Person(Base):
         except:
             data['status'] = '500'
             data['message'] = 'При просмотре информации произошла ошибка'
-            logger.info(data['message'] + ' ' + data['status'])
+            logger.error(data['message'] + ' ' + data['status'])
         return data
 
     def del_client(data):
@@ -296,7 +330,7 @@ class Person(Base):
         except:
             data['status'] = '500'
             data['message'] = 'Ошибка на сервере'
-            logger.info(str(data['message']) + ' ' + data['status'])
+            logger.error(str(data['message']) + ' ' + data['status'])
 
         return data
 
@@ -316,12 +350,12 @@ class Person(Base):
             else:
                 data['status'] = '500'
                 data['message'] = 'Пользователь с таким телефоном не найден!'
-                logger.info(data['message'] + ' ' + data['status'])
+                logger.error(data['message'] + ' ' + data['status'])
         except:
             data['status'] = '500'
             data['message'] = 'При смене пароля произошла ошибка'
             data['token'] = data['token']
-            logger.info(data['message'] + ' ' + data['status'])
+            logger.error(data['message'] + ' ' + data['status'])
         return data
 
     def edit_client(data):
@@ -344,11 +378,27 @@ class Person(Base):
             else:
                 data['status'] = '404'
                 data['message'] = 'Пользователь не найден!'
-                logger.info(data['message'] + ' ' + data['status'])
+                logger.error(data['message'] + ' ' + data['status'])
         except:
             data['status'] = '500'
             data['message'] = 'При изменении произошла ошибка'
+            logger.error(data['message'] + ' ' + data['status'])
+        return data
+
+    def log_out(data):
+        try:
+            # man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
+            #строка для удаления токена?????
+            data = {}
+            data['content']=[]
+            data['status'] = '200'
+            data['message'] = 'Вы вышли из аккаунта!'
+            client_data = {}
             logger.info(data['message'] + ' ' + data['status'])
+        except:
+            data['status'] = '500'
+            data['message'] = 'Ошибка сервера!'
+            logger.error(data['message'] + ' ' + data['status'])
         return data
 
 
@@ -409,7 +459,8 @@ class Contract(Base):
                 per2 = round((per1 * decimal.Decimal(cost)) + car_fix, 2)
 
                 contract = Contract(**data['content'])
-                contract.DateStartContract = datetime.datetime.strptime(data['content']['DateStartContract'], "%d-%m-%Y")
+                contract.DateStartContract = datetime.datetime.strptime(data['content']['DateStartContract'],
+                                                                        "%d-%m-%Y")
                 contract.DateEndContract = datetime.datetime.strptime(data['content']['DateEndContract'], "%d-%m-%Y")
                 contract.ClientId = man.Id
                 contract.CarId = car.Id
@@ -426,16 +477,17 @@ class Contract(Base):
             else:
                 data['status'] = '500'
                 data['message'] = 'Пользователь не найден!'
-                logger.info(data['message'] + ' ' + data['status'])
+                logger.error(data['message'] + ' ' + data['status'])
         except:
             data['status'] = '500'
             data['message'] = 'Ошибка сервера'
-            logger.info(data['message'] + ' ' + data['status'])
+            logger.error(data['message'] + ' ' + data['status'])
         return data
 
     def get_order(data):
         # try:
-        contract = session.query(Contract).filter(Contract.Id == int(data['content']['Id']), Contract.DateDel == None).first()
+        contract = session.query(Contract).filter(Contract.Id == int(data['content']['Id']),
+                                                  Contract.DateDel == None).first()
         man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
         l = list(filter(lambda x: x.Id == int(data['content']['Id']), man.client_contracts))
         contract = l[0] if l != [] else None
@@ -449,21 +501,24 @@ class Contract(Base):
         else:
             data['status'] = '404'
             data['message'] = 'Заявка с id ' + str(data['content']['Id']) + ' не найдена'
-            logger.info(str(data['message']) + ' ' + data['status'])
+            logger.error(str(data['message']) + ' ' + data['status'])
         # except:
         #     data['status'] = '500'
         #     data['message'] = 'Ошибка сервера'
-        #     logger.info(str(data['message']) + ' ' + data['status'])
+        #     logger.error(str(data['message']) + ' ' + data['status'])
         return data
+
+
 ###########################################################################################################
+client_count = threading.BoundedSemaphore(2)
+client_data = {}
+
 def launch_server():
     ADDRESS = 'localhost'
     PORT = 9090
-
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # создаем сокет
     server_socket.bind((ADDRESS, PORT))  # определяем адрес и порт
-    server_socket.listen(1)  # прослушиваем порт от одного клиента
-    print('Сервер запущен по адресу:', ADDRESS, PORT)
+    server_socket.listen()  # прослушиваем порт от одного клиента
     logger.info('Сервер запущен по адресу: ' + ADDRESS + ':' + str(PORT))
     ###########################################################################################################
     cars_dict = {
@@ -481,27 +536,31 @@ def launch_server():
         'get_client': Person.get_client,
         'del_client': Person.del_client,
         'edit_pass': Person.edit_pass,
-        'edit_client': Person.edit_client
+        'edit_client': Person.edit_client,
+        'log_out': Person.log_out
     }
-
     contract_dict = {
         'add_order': Contract.add_order,
         'get_order': Contract.get_order,
     }
+
     while True:
         connection, address = server_socket.accept()
-        print('Клиент с адресом', address, ' подключен')
+        client_count.acquire()
+        print('Количество доступных подключений: ', client_count._value)
         logger.info('Клиент с адресом' + str(address) + ' подключен')
         while True:
             try:
                 client_data = connection.recv(4096)
             except ConnectionResetError:
-                print('Клиент с адресом', address, ' отключился')
                 logger.info('Клиент с адресом' + str(address) + ' отключился')
+                client_count.release()
+                print('Количество доступных подключений: ',client_count._value)
                 break
             if not client_data:
-                print('Клиент с адресом', address, ' отключился')
                 logger.info('Клиент с адресом' + str(address) + ' отключился')
+                client_count.release()
+                print('Количество доступных подключений: ',client_count._value)
                 break
             client_data = json.loads(client_data.decode())
             print(client_data)
@@ -515,6 +574,7 @@ def launch_server():
             if client_data['endpoint'] == 'orders':
                 q = client_data['action']
                 new_client_dict = contract_dict.get(q)(client_data)
+            client_data = {}
             connection.sendall(bytes(json.dumps(new_client_dict, ensure_ascii=False, default=str), 'UTF-8'))
 
 

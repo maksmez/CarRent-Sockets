@@ -1,8 +1,7 @@
-import datetime
 import hashlib
 import json
 import socket
-from termcolor import colored, cprint
+from termcolor import cprint
 
 client_socket = socket.socket()  # создаем сокет
 
@@ -17,7 +16,7 @@ car_values_list = {
 fields_dict = {
     'cars': {
         'CompanyID': 'Id компании',
-        'Location':  'Адрес компании',
+        'Location': 'Адрес компании',
         'Photos': 'Пути к фотографиям',
         'RentCondition': 'Условия аренды',
         'Header': 'Заголовок',
@@ -53,22 +52,23 @@ fields_dict = {
         'NumVU': 'Номер ВУ',
         'Password': 'Пароль'
     }
-    }
+}
+
 
 def launch_client():
     choice_dict = {
-        1: ['clients', 'registration', sign_up],
-        2: ['clients', 'auth', sign_in],
-        3: ['clients', 'get_client', get_client],
-        4: ['clients', 'del_client', del_client],
-        5: ['clients', 'edit_pass', edit_pass],
-        6: ['clients', 'edit_client', edit_client],
-        7: ['cars', 'get_cars', get_cars],
-        8: ['cars', 'get_car', get_car],
-        9: ['orders', 'add_order', add_order],
-        10: ['orders', 'get_order', get_order],
-        101: ['cars', 'edit_car', edit_car],
-        100: ['clients', 'log_out', log_out],
+        1: ['clients', 'registration', sign_up, 'чтобы зарегистрироваться'],
+        2: ['clients', 'auth', sign_in, 'чтобы авторизоваться'],
+        3: ['clients', 'get_client', get_client, 'посмотреть личную информацию:'],
+        4: ['clients', 'del_client', del_client, 'чтобы удалить ваш аккаунт'],
+        5: ['clients', 'edit_pass', edit_pass, 'чтобы сменить пароль'],
+        6: ['clients', 'edit_client', edit_client, 'чтобы изменить свои данные'],
+        7: ['cars', 'get_cars', get_cars, 'чтобы посмотреть каталог'],
+        8: ['cars', 'get_car', get_car, 'чтобы посмотреть авто'],
+        9: ['orders', 'add_order', add_order, 'чтобы добавить заявку'],
+        10: ['orders', 'get_order', get_order, 'чтобы посмотреть заявку'],
+        11: ['clients', 'log_out', log_out, 'чтобы выйти из аккаунта'],
+        # 11: ['cars', 'edit_car', edit_car, 'чтобы изменить авто'],
     }
     try:
         client_socket.connect(('localhost', 9090))  # подключаемся к серверу
@@ -80,27 +80,16 @@ def launch_client():
 
     while True:
         while True:
+            cprint('Выберите действие:', 'blue')
             if not ('token' in client_data):
-                cprint('Выберите действие:', 'blue')
-                print('Введите 1 чтобы зарегистрироваться:')
-                print('Введите 2 чтобы авторизоваться:')
-                print('Введите 0 чтобы завершить работу:')
+                for i in range(1, 3):
+                    print('Введите', i, choice_dict[i][3])
             else:
-                cprint('Выберите действие:', 'blue')
-                print('Введите 3 чтобы посмотреть личную информацию')
-                print('Введите 4 чтобы удалить ваш аккаунт')
-                print('Введите 5 чтобы сменить пароль')
-                print('Введите 6 чтобы изменить свои данные')
-                print('Введите 7 чтобы посмотреть каталог')
-                print('Введите 8 чтобы посмотреть авто')
-                print('Введите 9 чтобы добавить заявку')
-                print('Введите 10 чтобы посмотреть заявку')
-                # print('Введите 9 чтобы изменить авто')
-                print('Введите 100 чтобы выйти из аккаунта')
-                print('Введите 0 чтобы завершить работу')
+                for i in range(3, len(choice_dict) + 1):
+                    print('Введите', i, choice_dict[i][3])
             try:
-                choice = input()
-                choice = int(choice)
+                cprint('Введите 0 - для завершения работы', 'red')
+                choice = int(input())
             except ValueError:
                 cprint('Ошибка! Введите цифру для выбора', 'red')
                 break
@@ -112,10 +101,10 @@ def launch_client():
                 ch_dc = choice_dict.get(choice)
                 client_data['endpoint'] = ch_dc[0]
                 client_data['action'] = ch_dc[1]
-                if (not 'token' in client_data and choice > 2):
+                if not 'token' in client_data and choice > 2:
                     cprint('Это действие доступно только для авторизованных пользователей!', 'red')
                     break
-                elif ('token' in client_data and choice < 3):
+                elif 'token' in client_data and choice < 3:
                     cprint('Это действие недоступно!', 'red')
                     break
                 client_data = ch_dc[2](client_data)
@@ -131,6 +120,7 @@ def send_and_receive(client_data):
     client_data = client_socket.recv(4096).decode()  # получение ответа от сервера
     client_data = json.loads(client_data)
     return client_data
+
 
 def print_content(client_data):
     if 'Password' in client_data['content']:
@@ -148,23 +138,29 @@ def print_content(client_data):
 
 def input_client_data_fields(client_data):
     for field in fields_dict[client_data['endpoint']]:
-        if field == 'Password':
+        if (field == 'Password' or field == 'Phone') and (client_data['action'] == 'edit_client'):
             continue
         print('Введите ' + fields_dict[client_data['endpoint']][field])
         client_data['content'][field] = input()
     return client_data
 
+
 def print_client_data_fields(client_data):
-    for num in range(len(client_data['content'])):
-        for field in fields_dict[client_data['endpoint']]:
-            if field == 'Password':
-                continue
-            a = client_data['content'][num][field]
-            if field in car_values_list:
-                print(fields_dict[client_data['endpoint']][field] + ': ' + car_values_list[field][a])
-            else:
-                print(fields_dict[client_data['endpoint']][field] + ': ' + str(a))
+    if client_data['content']:
         cprint("=" * 35, 'green')
+        for num in range(len(client_data['content'])):
+            for field in fields_dict[client_data['endpoint']]:
+                if field == 'Password':
+                    continue
+                a = client_data['content'][num][field]
+                if field in car_values_list:
+                    print(fields_dict[client_data['endpoint']][field] + ': ' + car_values_list[field][a])
+                else:
+                    print(fields_dict[client_data['endpoint']][field] + ': ' + str(a))
+            cprint("=" * 35, 'green')
+    else:
+        return
+
 
 ###########CAR###############################################
 def add_car(client_data):
@@ -173,41 +169,64 @@ def add_car(client_data):
     client_data = print_content(client_data)
     return client_data
 
-def delete_car():
-    print('Введите id авто для удаления')
-    choice_del = input()
-    choice_del = int(choice_del)
-    content = {'Id': choice_del}
 
-    return content
+def delete_car(client_data):
+    print('Введите id авто для удаления')
+    client_data['content'] = {}
+    try:
+        choice_del = int(input())
+        client_data['content']['CategoryID'] = choice_del
+        client_data = print_content(client_data)
+    except ValueError:
+        cprint('Введите число!', 'red')
+    except:
+        cprint('Ошибка!', 'red')
+    return client_data
+
 
 def get_cars(client_data):
     print('Введите ' + fields_dict[client_data['endpoint']]['CategoryID'])
-    choice_car = int(input())
     client_data['content'] = {}
-    client_data['content']['CategoryID'] = choice_car
-    client_data = print_content(client_data)
-
+    try:
+        choice_car = int(input())
+        client_data['content']['CategoryID'] = choice_car
+        client_data = print_content(client_data)
+    except ValueError:
+        cprint('Введите число!', 'red')
+    except:
+        cprint('Ошибка!', 'red')
     return client_data
+
 
 def get_car(client_data):
     print('Введите id авто')
-    choice_car = int(input())
     client_data['content'] = {}
-    client_data['content']['Id'] = choice_car
-    client_data = print_content(client_data)
-
+    try:
+        choice_car = int(input())
+        client_data['content']['Id'] = choice_car
+        client_data = print_content(client_data)
+    except ValueError:
+        cprint('Введите число!', 'red')
+    except:
+        cprint('Ошибка!', 'red')
     return client_data
+
 
 def edit_car(client_data):
     #  Поля отмеченные * - не обязательные или имеют значение по умолчанию
     #  Проблема с пустыми полями
     print('Введите Id ТС')
     client_data['content'] = {}
-    client_data['content']['Id'] = int(input())
-    input_client_data_fields(client_data)
-    client_data = print_content(client_data)
+    try:
+        client_data['content']['Id'] = int(input())
+        input_client_data_fields(client_data)
+        client_data = print_content(client_data)
+    except ValueError:
+        cprint('Введите число!', 'red')
+    except:
+        cprint('Ошибка!', 'red')
     return client_data
+
 
 ###########CAR###############################################
 ###########Person###############################################
@@ -217,6 +236,7 @@ def sign_up(client_data):
     input_client_data_fields(client_data)
     client_data = print_content(client_data)
     return client_data
+
 
 def sign_in(client_data):
     client_data['content'] = {}
@@ -228,9 +248,11 @@ def sign_in(client_data):
 
     return client_data
 
+
 def get_client(client_data):
-    new_client_data = print_content(client_data)
-    return new_client_data
+    client_data = print_content(client_data)
+    return client_data
+
 
 def del_client(client_data):
     try:
@@ -244,10 +266,12 @@ def del_client(client_data):
 
     return client_data
 
+
 def log_out(client_data):
+    client_data = print_content(client_data)
     client_data = {}
-    cprint('Вы вышли из аккаунта!', 'blue')
     return client_data
+
 
 def edit_pass(client_data):
     print('Введите новый пароль')
@@ -262,11 +286,14 @@ def edit_pass(client_data):
         cprint('Пароли не совпадают, попробуйте снова!', 'red')
     return client_data
 
+
 def edit_client(client_data):
     client_data['content'] = {}
     input_client_data_fields(client_data)
     client_data = print_content(client_data)
     return client_data
+
+
 ###########Person###############################################
 ###########Order###############################################
 def add_order(client_data):
@@ -281,6 +308,7 @@ def add_order(client_data):
     client_data = print_content(client_data)
     return client_data
 
+
 def get_order(client_data):
     print('Введите id заявки')
     choice_order = int(input())
@@ -289,4 +317,6 @@ def get_order(client_data):
     client_data = print_content(client_data)
 
     return client_data
+
+
 launch_client()
