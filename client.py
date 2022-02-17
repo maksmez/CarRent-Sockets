@@ -12,6 +12,9 @@ car_values_list = {
     'Drive': ['Полный', 'Задний', 'Передний'],
     'Wheel_drive': ['Правый', 'Левый']
 }
+order_status_dict = {
+    'Status': ['Активная','Завершена','Отменена']
+}
 
 fields_dict = {
     'cars': {
@@ -36,6 +39,7 @@ fields_dict = {
         'Price': 'Стоимость'
     },
     'orders': {
+        'Id': 'Id заявки',
         'DateStartContract': 'Дата начала аренды',
         'DateEndContract': 'Дата окончания аренды',
         'Status': 'Статус заявки',
@@ -67,7 +71,8 @@ def launch_client():
         8: ['cars', 'get_car', get_car, 'чтобы посмотреть авто'],
         9: ['orders', 'add_order', add_order, 'чтобы добавить заявку'],
         10: ['orders', 'get_order', get_order, 'чтобы посмотреть заявку'],
-        11: ['clients', 'log_out', log_out, 'чтобы выйти из аккаунта'],
+        11: ['orders', 'get_orders', get_orders, 'чтобы посмотреть заявки'],
+        12: ['clients', 'log_out', log_out, 'чтобы выйти из аккаунта'],
         # 11: ['cars', 'edit_car', edit_car, 'чтобы изменить авто'],
     }
     try:
@@ -157,6 +162,9 @@ def print_client_data_fields(client_data):
                     print(fields_dict[client_data['endpoint']][field] + ': ' + car_values_list[field][a])
                 else:
                     print(fields_dict[client_data['endpoint']][field] + ': ' + str(a))
+                if field in order_status_dict:
+                    print(fields_dict[client_data['endpoint']][field] + ': ' + order_status_dict[field][a])
+
             cprint("=" * 35, 'green')
     else:
         return
@@ -318,5 +326,9 @@ def get_order(client_data):
 
     return client_data
 
+
+def get_orders(client_data):
+    client_data = print_content(client_data)
+    return client_data
 
 launch_client()

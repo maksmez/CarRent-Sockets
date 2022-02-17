@@ -33,8 +33,8 @@ with open('config_server') as config_server:
 try:
     connection_tarantool = tarantool.connect(config['connection_string_tarantool_ip'], config['connection_string_tarantool_port'] )
     tarantool_space = connection_tarantool.space('user_token')
-    # db_engine = create_engine(config['connection_string_postgresql'])
-    db_engine = create_engine(config['connection_string_SQLite'])
+    # db_engine = create_engine(config['connection_string'])
+    db_engine = create_engine(config['connection_string'])
     db_engine.connect()
     Base = declarative_base()
     session = Session(bind=db_engine)
@@ -48,20 +48,9 @@ except:
 salt = config['salt']
 
 #########################################################################################
-
-file_log = logging.FileHandler('server_logger.log')
-console_out = logging.StreamHandler()
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="[%(asctime)s] - %(levelname)s - %(name)s - %(message)s",
-    datefmt="%d/%b/%Y %H:%M:%S",
-    handlers=(file_log, console_out)
-)
-# logging.config.dictConfig(config['logger'])
-# logger = logging.getLogger('dev')
-# logger.setLevel(logging.INFO)
+logging.config.dictConfig(config['logger_settings'])
 logger = logging.getLogger('server')
-
+logger.setLevel(logging.DEBUG)
 #########################################################################################
 
 def object_to_dict(obj):  # преобразоваение объекта в словарь
@@ -485,27 +474,52 @@ class Contract(Base):
         return data
 
     def get_order(data):
-        # try:
-        contract = session.query(Contract).filter(Contract.Id == int(data['content']['Id']),
-                                                  Contract.DateDel == None).first()
-        man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
-        l = list(filter(lambda x: x.Id == int(data['content']['Id']), man.client_contracts))
-        contract = l[0] if l != [] else None
-        if contract is not None:
-            data['content'] = [object_to_dict(contract)]
-            c = contract.contract_car.Id
-            data['content'][0]['CarId'] = contract.contract_car.Brand_and_name + ': id ' + str(contract.contract_car.Id)
-            data['status'] = '200'
-            data['message'] = 'Просмотр заявки c id ' + str(data['content'][0]['Id'])
-            logger.info(data['message'] + ' ' + data['status'])
-        else:
-            data['status'] = '404'
-            data['message'] = 'Заявка с id ' + str(data['content']['Id']) + ' не найдена'
+        try:
+            contract = session.query(Contract).filter(Contract.Id == int(data['content']['Id']),
+                                                      Contract.DateDel == None).first()
+            man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
+            l = list(filter(lambda x: x.Id == int(data['content']['Id']), man.client_contracts))
+            contract = l[0] if l != [] else None
+            if contract is not None:
+                data['content'] = [object_to_dict(contract)]
+                c = contract.contract_car.Id
+                data['content'][0]['CarId'] = contract.contract_car.Brand_and_name + ': id ' + str(contract.contract_car.Id)
+                data['status'] = '200'
+                data['message'] = 'Просмотр заявки c id ' + str(data['content'][0]['Id'])
+                logger.info(data['message'] + ' ' + data['status'])
+            else:
+                data['status'] = '404'
+                data['message'] = 'Заявка с id ' + str(data['content']['Id']) + ' не найдена'
+                logger.error(str(data['message']) + ' ' + data['status'])
+        except:
+                data['status'] = '500'
+                data['message'] = 'Ошибка сервера'
+                logger.error(str(data['message']) + ' ' + data['status'])
+        return data
+
+    def get_orders(data):
+        try:
+            man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
+            list_contract = list(man.client_contracts)
+            contracts = []
+            for o in list_contract:
+                object = object_to_dict(o)
+                c = o.contract_car
+                object['CarId'] = c.Brand_and_name + ': id ' + str(c.Id)
+                contracts.append(object)
+            if contracts:
+                data['content'] = contracts
+                data['status'] = '200'
+                data['message'] = 'Просмотр заявок клиента с id ' + str(man.Id)
+                logger.info(data['message'] + ' ' + data['status'])
+            else:
+                data['status'] = '404'
+                data['message'] = 'Заявок у клиента с id ' + str(man.Id) +  ' нет!'
+                logger.error(str(data['message']) + ' ' + data['status'])
+        except:
+            data['status'] = '500'
+            data['message'] = 'Ошибка сервера'
             logger.error(str(data['message']) + ' ' + data['status'])
-        # except:
-        #     data['status'] = '500'
-        #     data['message'] = 'Ошибка сервера'
-        #     logger.error(str(data['message']) + ' ' + data['status'])
         return data
 
 
@@ -514,12 +528,10 @@ client_count = threading.BoundedSemaphore(2)
 client_data = {}
 
 def launch_server():
-    ADDRESS = 'localhost'
-    PORT = 9090
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # создаем сокет
-    server_socket.bind((ADDRESS, PORT))  # определяем адрес и порт
+    server_socket.bind((config['ADDRESS'], config['PORT']))  # определяем адрес и порт
     server_socket.listen()  # прослушиваем порт от одного клиента
-    logger.info('Сервер запущен по адресу: ' + ADDRESS + ':' + str(PORT))
+    logger.info('Сервер запущен по адресу: ' + config['ADDRESS'] + ':' + str(config['PORT']))
     ###########################################################################################################
     cars_dict = {
         'add': Car.add_car,
@@ -542,6 +554,7 @@ def launch_server():
     contract_dict = {
         'add_order': Contract.add_order,
         'get_order': Contract.get_order,
+        'get_orders': Contract.get_orders,
     }
 
     while True:
