@@ -1,27 +1,26 @@
 import decimal
 import hashlib
 import uuid
-from time import sleep
-from uuid import uuid4
 
 import yaml
 from sqlalchemy import create_engine, Integer, String, Column, Date, ForeignKey, Numeric, Boolean
 from sqlalchemy.ext.declarative import declarative_base
-import datetime
 import socket
 import json
 from sqlalchemy.orm import Session, relationship
-import logging
 import logging.config
-import configparser
 import datetime
 import tarantool
-from termcolor import colored, cprint
 import threading
-
 
 with open('config_server') as config_server:
     config = yaml.safe_load(config_server)
+
+#########################################################################################
+logging.config.dictConfig(config['logger_settings'])
+logger = logging.getLogger('server')
+#########################################################################################
+
 # tarantool_space.insert((7,'7777a2sd7as2d7a7d7asd7adasdas'))  # вставка данных (id и token должны быть уникальными т.к индексы)
 # tarantool_space.replace((5, '111112nhfhsfhsdfhsdhf'))  # изменение данных
 # tarantool_space.delete((6))  # удаляет запись по id
@@ -29,9 +28,9 @@ with open('config_server') as config_server:
 # print(tarantool_space.select())  # поиск записи по id, если (), то вывод всех
 
 
-
 try:
-    connection_tarantool = tarantool.connect(config['connection_string_tarantool_ip'], config['connection_string_tarantool_port'] )
+    connection_tarantool = tarantool.connect(config['connection_string_tarantool_ip'],
+                                             config['connection_string_tarantool_port'])
     tarantool_space = connection_tarantool.space('user_token')
     # db_engine = create_engine(config['connection_string'])
     db_engine = create_engine(config['connection_string'])
@@ -39,24 +38,26 @@ try:
     Base = declarative_base()
     session = Session(bind=db_engine)
 except tarantool.error.NetworkError:
-    cprint('Tarantool не подключен!!', 'red')
+    logger.error('Tarantool не подключен!!')
     exit()
 except:
-    cprint('SQLite не подключен!!', 'red')
+    logger.error('SQLite не подключен!!')
     exit()
 
 salt = config['salt']
 
-#########################################################################################
-logging.config.dictConfig(config['logger_settings'])
-logger = logging.getLogger('server')
-logger.setLevel(logging.DEBUG)
-#########################################################################################
 
+#########################################################################################
 def object_to_dict(obj):  # преобразоваение объекта в словарь
     return {x.name: getattr(obj, x.name)
             for x in obj.__table__.columns}
 
+#########################################################################################
+def dict_to_object(obj, dict):
+    for x in obj.__table__.columns:
+        if x.name in dict:
+            setattr(obj, x.name, dict[x.name])
+    return obj
 #########################################################################################
 
 class Car(Base):
@@ -75,9 +76,11 @@ class Car(Base):
     DateDel = Column(Date, nullable=True)
     FixedRate = Column(Numeric, nullable=True)
     Percent = Column(Numeric, nullable=True)
+
     car_company = relationship("Company", back_populates="company_cars")
     car_category = relationship("Category", back_populates="category_cars")
     car_contract = relationship("Contract", back_populates="contract_car")
+    # car_favorite = relationship("Favorite", back_populates="favorite_car")
 
     Brand_and_name = Column(String, nullable=False)
     Transmission = Column(Integer, nullable=True, default=0)
@@ -88,41 +91,6 @@ class Car(Base):
     Year = Column(Integer, nullable=False)
     Power = Column(Integer, nullable=False)
     Price = Column(Integer, nullable=False)
-
-    def add_car(data):
-        try:
-            car = Car(**data['content'])
-            car.DateDel = None
-            car.status = True
-            if data['content']['Driver'] == '1':
-                car.Driver = True
-            else:
-                car.Driver = False
-            session.add(car)
-            session.commit()
-            data['status'] = '200'
-            data['message'] = 'ТС с id ' + str(car.Id) + ' добавлено'
-            logger.info(data['message'] + ' ' + data['status'])
-        except:
-            data['status'] = '500'
-            data['message'] = 'При добавлении ТС произошла ошибка'
-            logger.error(data['message'] + ' ' + data['status'])
-
-        return data
-
-    def delete_car(data):
-        try:
-            car = session.query(Car).get(data['content']['Id'])
-            car.DateDel = datetime.date.today()
-            session.commit()
-            data['status'] = '200'
-            data['message'] = 'ТС с id ' + str(data['content']['Id']) + ' удалено'
-            logger.info(data['message'] + ' ' + data['status'])
-        except:
-            data['status'] = '404'
-            data['message'] = 'ТС с id ' + str(data['content']['Id']) + ' не найдено'
-            logger.error(str(data['message']) + ' ' + data['status'])
-        return data
 
     def get_car(data):
         try:
@@ -172,51 +140,6 @@ class Car(Base):
 
         return data
 
-    def edit_car(data):
-        try:
-            car = session.query(Car).get(data['content']['Id'])
-            if car is None:
-                data['status'] = '404'
-                data['message'] = 'ТС с id ' + str(data['content']['Id'] + ' не найдено!')
-                logger.error(data['message'] + ' ' + data['status'])
-            else:
-                data['content']['DateDel'] = None
-                # new_car = car.__dict__.update(data['content'])
-                car.Photos = data['content']['Photos']
-                car.Header = data['content']['Header']
-                car.CategoryID = data['content']['CategoryID']
-                car.CompanyID = data['content']['CompanyID']
-                car.Brand_and_name = data['content']['Brand_and_name']
-                car.Car_type = data['content']['Car_type']
-                car.Engine = data['content']['Engine']
-                car.Transmission = data['content']['Transmission']
-                car.Drive = data['content']['Drive']
-                car.Wheel_drive = data['content']['Wheel_drive']
-                car.Year = data['content']['Year']
-                if data['content']['Driver'] == '1':
-                    car.Driver = True
-                else:
-                    car.Driver = False
-                # car.status = data['content']['status']
-                car.Power = data['content']['Power']
-                car.CategoryVU = data['content']['CategoryVU']
-                car.Price = data['content']['Price']
-                car.FixedRate = data['content']['FixedRate']
-                car.Percent = data['content']['Percent']
-                car.Location = data['content']['Location']
-                car.RentCondition = data['content']['RentCondition']
-
-                session.add(car)
-                session.commit()
-                data['status'] = '200'
-                data['message'] = 'Редактирование ТС с id  ' + str(data['content']['Id'])
-                logger.info(data['message'] + ' ' + data['status'])
-        except:
-            data['status'] = '500'
-            data['message'] = 'Произошла ошибка редактирования ТС с id ' + str(data['content']['Id'])
-            logger.error(data['message'] + ' ' + data['status'])
-        return data
-
 
 class Person(Base):
     __tablename__ = 'Person'
@@ -234,7 +157,9 @@ class Person(Base):
     CategoryVuID = Column(String, nullable=False)
     NumVU = Column(String, nullable=False)
     DateDel = Column(Date, nullable=True)
+
     client_contracts = relationship("Contract", back_populates="contract_client")
+    favorites = relationship("Car", secondary="Favorites")
 
     def sign_up(data):
         try:
@@ -351,12 +276,8 @@ class Person(Base):
         try:
             man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
             if man is not None:
-                man.Name = data['content']['Name']
-                man.Surname = data['content']['Surname']
+                man = dict_to_object(man, data['content'])
                 man.Birthday = datetime.datetime.strptime(data['content']['Birthday'], "%d-%m-%Y")
-                man.Email = data['content']['Email']
-                man.CategoryVuID = data['content']['CategoryVuID']
-                man.NumVU = data['content']['NumVU']
                 session.add(man)
                 session.commit()
                 data['content'] = []
@@ -377,9 +298,9 @@ class Person(Base):
     def log_out(data):
         try:
             # man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
-            #строка для удаления токена?????
+            # строка для удаления токена?????
             data = {}
-            data['content']=[]
+            data['content'] = []
             data['status'] = '200'
             data['message'] = 'Вы вышли из аккаунта!'
             client_data = {}
@@ -483,7 +404,8 @@ class Contract(Base):
             if contract is not None:
                 data['content'] = [object_to_dict(contract)]
                 c = contract.contract_car.Id
-                data['content'][0]['CarId'] = contract.contract_car.Brand_and_name + ': id ' + str(contract.contract_car.Id)
+                data['content'][0]['CarId'] = contract.contract_car.Brand_and_name + ': id ' + str(
+                    contract.contract_car.Id)
                 data['status'] = '200'
                 data['message'] = 'Просмотр заявки c id ' + str(data['content'][0]['Id'])
                 logger.info(data['message'] + ' ' + data['status'])
@@ -492,9 +414,9 @@ class Contract(Base):
                 data['message'] = 'Заявка с id ' + str(data['content']['Id']) + ' не найдена'
                 logger.error(str(data['message']) + ' ' + data['status'])
         except:
-                data['status'] = '500'
-                data['message'] = 'Ошибка сервера'
-                logger.error(str(data['message']) + ' ' + data['status'])
+            data['status'] = '500'
+            data['message'] = 'Ошибка сервера'
+            logger.error(str(data['message']) + ' ' + data['status'])
         return data
 
     def get_orders(data):
@@ -514,7 +436,91 @@ class Contract(Base):
                 logger.info(data['message'] + ' ' + data['status'])
             else:
                 data['status'] = '404'
-                data['message'] = 'Заявок у клиента с id ' + str(man.Id) +  ' нет!'
+                data['message'] = 'Заявок у клиента с id ' + str(man.Id) + ' нет!'
+                logger.error(str(data['message']) + ' ' + data['status'])
+        except:
+            data['status'] = '500'
+            data['message'] = 'Ошибка сервера'
+            logger.error(str(data['message']) + ' ' + data['status'])
+        return data
+
+
+class Favorite(Base):
+    __tablename__ = 'Favorites'
+    Id = Column(Integer, primary_key=True)  # pk
+    ClientId = Column(Integer, ForeignKey('Person.Id'), nullable=False)  # fk
+    CarId = Column(Integer, ForeignKey('Cars.Id'), nullable=False)  # fk
+    Date_add = Column(Date, nullable=True)
+    DateDel = Column(Date, nullable=True)
+    # favorite_client = relationship("Person", back_populates="client_favorite")
+    # favorite_car = relationship("Car", back_populates="car_favorite")
+
+    def add_favorite(data):
+        try:
+            man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
+            car = session.query(Car).filter(Car.Id == data['content']['CarId'], Car.DateDel == None).first()
+            # a = man.client_favorite
+            if man is not None:
+                if car not in man.favorites:
+                    fav = Favorite()
+                    fav.CarId = car.Id
+                    fav.ClientId = man.Id
+                    fav.Date_add = datetime.date.today()
+                    session.add(fav)
+                    session.commit()
+                    data['content'] = []
+                    data['status'] = '200'
+                    data['message'] = 'Авто добавлено в избранное! Id авто: ' + str(car.Id)
+                    logger.info(data['message'] + ' ' + data['status'])
+                else:
+                    data['status'] = '500'
+                    data['message'] = 'Авто с id ' + str(car.Id) + ' уже добавлено в избранное!'
+                    logger.error(data['message'] + ' ' + data['status'])
+            else:
+                data['status'] = '500'
+                data['message'] = 'Пользователь не найден!'
+                logger.error(data['message'] + ' ' + data['status'])
+        except:
+            data['status'] = '500'
+            data['message'] = 'Ошибка сервера'
+            logger.error(data['message'] + ' ' + data['status'])
+        return data
+
+    def del_favorite(data):
+        try:
+            man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
+            fav = session.query(Favorite).filter(Favorite.ClientId == man.Id,
+                                                 Favorite.CarId == data['content']['CarId']).first()
+            # fav.DateDel = datetime.date.today()
+            session.delete(fav)
+            session.commit()
+            data['content'] = []
+            data['status'] = '200'
+            data['message'] = 'ТС с id ' + str(fav.CarId) + ' удалено из избранного'
+            logger.info(data['message'] + ' ' + data['status'])
+        except:
+            data['status'] = '404'
+            data['message'] = 'ТС с id ' + str(data['content']['CarId']) + ' не найдено в избранном'
+            logger.error(str(data['message']) + ' ' + data['status'])
+        return data
+
+    def get_favorites(data):
+        try:
+            man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
+            list_favorites = list(man.favorites)
+            favorites = []
+            for o in list_favorites:
+                object = {}
+                object['CarId'] = o.Brand_and_name + ': id ' + str(o.Id)
+                favorites.append(object)
+            if favorites:
+                data['content'] = favorites
+                data['status'] = '200'
+                data['message'] = 'Просмотр списка избранного клиента с id ' + str(man.Id)
+                logger.info(data['message'] + ' ' + data['status'])
+            else:
+                data['status'] = '404'
+                data['message'] = 'Список избранного у клиента с id ' + str(man.Id) + ' пуст!'
                 logger.error(str(data['message']) + ' ' + data['status'])
         except:
             data['status'] = '500'
@@ -527,6 +533,7 @@ class Contract(Base):
 client_count = threading.BoundedSemaphore(2)
 client_data = {}
 
+
 def launch_server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # создаем сокет
     server_socket.bind((config['ADDRESS'], config['PORT']))  # определяем адрес и порт
@@ -534,22 +541,20 @@ def launch_server():
     logger.info('Сервер запущен по адресу: ' + config['ADDRESS'] + ':' + str(config['PORT']))
     ###########################################################################################################
     cars_dict = {
-        'add': Car.add_car,
-        'delete': Car.delete_car,
-        'get': Car.get_car,
         'get_cars': Car.get_cars,
-        'edit_car': Car.edit_car,
-        'add_car': Car.add_car,
         'get_car': Car.get_car
     }
     person_dict = {
-        'registration': Person.sign_up,
-        'auth': Person.sign_in,
+        'sign_up': Person.sign_up,
+        'sign_in': Person.sign_in,
         'get_client': Person.get_client,
         'del_client': Person.del_client,
         'edit_pass': Person.edit_pass,
         'edit_client': Person.edit_client,
-        'log_out': Person.log_out
+        'log_out': Person.log_out,
+        'add_favorite': Favorite.add_favorite,
+        'del_favorite': Favorite.del_favorite,
+        'get_favorites': Favorite.get_favorites
     }
     contract_dict = {
         'add_order': Contract.add_order,
@@ -568,12 +573,12 @@ def launch_server():
             except ConnectionResetError:
                 logger.info('Клиент с адресом' + str(address) + ' отключился')
                 client_count.release()
-                print('Количество доступных подключений: ',client_count._value)
+                print('Количество доступных подключений: ', client_count._value)
                 break
             if not client_data:
                 logger.info('Клиент с адресом' + str(address) + ' отключился')
                 client_count.release()
-                print('Количество доступных подключений: ',client_count._value)
+                print('Количество доступных подключений: ', client_count._value)
                 break
             client_data = json.loads(client_data.decode())
             print(client_data)
