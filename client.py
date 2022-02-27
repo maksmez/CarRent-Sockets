@@ -172,9 +172,10 @@ def print_client_data_fields(client_data):
                     if field in car_values_list:
                         print(fields_dict[client_data['endpoint']][field] + ': ' + car_values_list[field][a])
                     else:
-                        print(fields_dict[client_data['endpoint']][field] + ': ' + str(a))
-                    if field in order_status_dict:
-                        print(fields_dict[client_data['endpoint']][field] + ': ' + order_status_dict[field][a])
+                        if field in order_status_dict:
+                            print(fields_dict[client_data['endpoint']][field] + ': ' + order_status_dict[field][a])
+                        else:
+                            print(fields_dict[client_data['endpoint']][field] + ': ' + str(a))
 
             cprint("=" * 35, 'green')
     else:
