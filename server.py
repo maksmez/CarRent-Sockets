@@ -1,6 +1,10 @@
+u"""Модуль выполняющий роль сервера"""
 import decimal
 import hashlib
+import struct
+import threading
 import uuid
+from threading import Thread
 import yaml
 from sqlalchemy import create_engine, Integer, String, Column, Date, ForeignKey, Numeric, Boolean
 from sqlalchemy.ext.declarative import declarative_base
@@ -10,8 +14,10 @@ from sqlalchemy.orm import Session, relationship
 import logging.config
 import datetime
 import tarantool
-import threading
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
 
+from functools import wraps
 with open('config_server') as config_server:
     config = yaml.safe_load(config_server)
 
@@ -27,31 +33,49 @@ try:
     db_engine = create_engine(config['connection_string'])
     db_engine.connect()
     Base = declarative_base()
-    session = Session(bind=db_engine)
+
+    session_factory = sessionmaker(bind=db_engine)
+    session = scoped_session(session_factory)
+    # session = Session(bind=db_engine)
+
 except tarantool.error.NetworkError:
     logger.error('Tarantool не подключен!!')
     exit()
-except:
-    logger.error('SQLite не подключен!!')
+except Exception as e:
+    logger.error(e)
     exit()
 
 salt = config['salt']
 
+
 #########################################################################################
-def object_to_dict(obj):  # преобразоваение объекта в словарь
+def object_to_dict(obj):
+    u"""
+    Метод для преобразования объекта класса в словарь
+        Параметры:
+        obj: объект какого-либо класса
+    """
     return {x.name: getattr(obj, x.name)
             for x in obj.__table__.columns}
 
-
 #########################################################################################
 def dict_to_object(obj, dict):
+    u"""
+    Метод для преобразования словаря в объект класса
+        Параметры:
+        obj: объект какого-либо класса
+        dict: словарь
+    """
     for x in obj.__table__.columns:
         if x.name in dict:
             setattr(obj, x.name, dict[x.name])
     return obj
 
 #########################################################################################
+
 def check_500(any_func):
+    u"""Декоратор для обнаружения каких-либо ошибок на сервере"""
+    @wraps(any_func)
     def checking(data):
         try:
             return any_func(data)
@@ -61,16 +85,23 @@ def check_500(any_func):
             data['message'] = 'Произошла ошибка на сервере'
             logger.error(data['message'] + ' ' + data['status'])
             return data
+
     return checking
 
 def check_token(any_func):
+    u"""Декоратор для проверки токена клиента"""
+    @wraps(any_func)
     def checking(data):
         try:
-            taran = tarantool_space.select(data['token']).data[0]
-            time_token = int(datetime.datetime.now().timestamp())
-            if time_token - taran[2] <= config['ttl']:
-                tarantool_space.update(data['token'], [('=', 2, time_token)])
-                return any_func(data)
+            tarantool_token = tarantool_space.select(data['token']).data[0]
+            time_now = int(datetime.datetime.now().timestamp())
+            last_time_token = time_now - tarantool_token[2]
+            if last_time_token <= config['ttl']:
+                if last_time_token <= config['ttl_update']:
+                    return any_func(data)
+                else:
+                    tarantool_space.update(data['token'], [('=', 2, time_now)])
+                    return any_func(data)
             else:
                 tarantool_space.delete((data['token']))
                 del data['token']
@@ -85,9 +116,38 @@ def check_token(any_func):
         return data
 
     return checking
+
 #########################################################################################
 
 class Car(Base):
+    u"""
+    Класс транспортного средства
+
+    Атрибуты
+    ---
+    Id (Integer): Уникальный идентификатор
+    CompanyID (Integer): Уникальный идентификатор компании
+    Location (String): Адрес расположения автомобиля
+    Photos (String): Путь до фотографий
+    RentCondition (String): Условия аренды
+    Header (String): Заголовок объявления
+    Driver (Boolean): Есть ли водитель у автомобиля
+    status (Boolean): Статус автомобиля (скрыто или нет)
+    CategoryID (Integer): Уникальный идентификатор категории
+    CategoryVU (String): Категория ВУ автомобиля
+    DateDel (Date): Дата удаления
+    FixedRate (Numeric): Фиксированная комиссия
+    Percent (Numeric): Процент комиссии
+    Brand_and_name (String):Марка и модель автомобиля
+    Transmission (Integer): Тип трансмиссии
+    Engine (Integer): Тип двигателя
+    Car_type (Integer): Тип кузова
+    Drive (Integer): Тип привода
+    Wheel_drive (Integer): Положение руля
+    Year (Integer): Год выпуска
+    Power (Integer): Мощность
+    Price (Integer): Стоимость аренды
+    """
     __tablename__ = 'Cars'
 
     Id = Column(Integer, primary_key=True)  # pk
@@ -121,6 +181,13 @@ class Car(Base):
     @check_500
     @check_token
     def get_car(data):
+        """
+        Метод для получения информации об автомобиле
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь с информацией об автомобиле
+        """
         car = session.query(Car).filter(Car.Id == int(data['content']['Id']), Car.DateDel == None).first()
         if car is not None:
             data['content'] = [object_to_dict(car)]
@@ -136,6 +203,13 @@ class Car(Base):
     @check_500
     @check_token
     def get_cars(data):
+        """
+        Метод для получения списка автомобилей определенной категории
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь с данными автомобилей определенной категории
+        """
         category = session.query(Category).get(int(data['content']['CategoryID']))
         if category == None:
             data['status'] = '404'
@@ -162,6 +236,26 @@ class Car(Base):
 
 
 class Person(Base):
+    u"""
+        Класс клиента
+
+        Атрибуты
+        ---
+        Id (Integer): Уникальный идентификатор
+        CompanyID (Integer): Уникальный идентификатор компании
+        Name (String): Имя
+        Surname (String): Фамилия
+        Birthday (Date): Дата рождения
+        Phone (String): Телефон
+        Password (String): Пароль
+        Token (String): Токен
+        Email (String): Адрес электронной почты
+        Position (Integer): НЕ ЗНАЮ КАК ОПИСАТЬ
+        Comment (String): Комментарий к клиенту
+        CategoryVuID (String): Категории ВУ
+        NumVU (String): Номер ВУ
+        DateDel (Date): Дата удаления
+        """
     __tablename__ = 'Person'
     Id = Column(Integer, primary_key=True)  # pk
     CompanyID = Column(Integer, nullable=True, default=0)  # fk
@@ -183,6 +277,13 @@ class Person(Base):
 
     @check_500
     def sign_up(data):
+        """
+        Метод для регистрации клиента в системе
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь с информацией о регистрации или сообщение об ошибке
+        """
         man = session.query(Person).filter(Person.Phone == data['content']['Phone'], Person.DateDel == None).first()
         if man is None:
             salted = hashlib.sha256(data['content']['Password'].encode() + salt.encode()).hexdigest()
@@ -212,6 +313,13 @@ class Person(Base):
 
     @check_500
     def sign_in(data):
+        """
+        Метод для автоизации клиента в системе
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь с информацией об авторизации или сообщение об ошибке
+        """
         salted = hashlib.sha256(data['content']['Password'].encode() + salt.encode()).hexdigest()
         man = session.query(Person).filter(Person.Phone == data['content']['Phone'], Person.Password == salted,
                                            Person.DateDel == None).first()
@@ -235,6 +343,13 @@ class Person(Base):
     @check_500
     @check_token
     def get_client(data):
+        """
+        Метод для получении личных данных клиента
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь с личной информацией клиента или сообщение об ошибке
+        """
         man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
         data['content'] = [object_to_dict(man)]
         del (data['content'][0]['Password'])
@@ -249,6 +364,13 @@ class Person(Base):
     @check_500
     @check_token
     def del_client(data):
+        """
+        Метод для удаления клиента из системы
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь с информацией об удалении или сообщение об ошибке
+        """
         man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
         man.DateDel = datetime.date.today()
         session.add(man)
@@ -263,48 +385,59 @@ class Person(Base):
     @check_500
     @check_token
     def edit_pass(data):
+        """
+        Метод для смены пароля клиента
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь с информацией о смене пароля или сообщение об ошибке
+        """
         man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
-        if man is not None:
-            salted = hashlib.sha256(data['content']['Password'].encode() + salt.encode()).hexdigest()
-            man.Password = salted
-            session.add(man)
-            session.commit()
-            data['content'] = []
-            data['status'] = '200'
-            data['token'] = man.Token
-            data['message'] = 'Пароль изменен! Ваш Id: ' + str(man.Id)
-            logger.info(data['message'] + ' ' + data['status'])
-        else:
-            data['status'] = '500'
-            data['message'] = 'Пользователь с таким телефоном не найден!'
-            logger.error(data['message'] + ' ' + data['status'])
+        salted = hashlib.sha256(data['content']['Password'].encode() + salt.encode()).hexdigest()
+        man.Password = salted
+        session.add(man)
+        session.commit()
+        data['content'] = []
+        data['status'] = '200'
+        data['token'] = man.Token
+        data['message'] = 'Пароль изменен! Ваш Id: ' + str(man.Id)
+        logger.info(data['message'] + ' ' + data['status'])
 
         return data
 
     @check_500
     @check_token
     def edit_client(data):
+        """
+        Метод для редактирования личных данных клиента
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь с информацией об успешном редактировании или сообщение об ошибке
+        """
         man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
-        if man is not None:
-            man = dict_to_object(man, data['content'])
-            man.Birthday = datetime.datetime.strptime(data['content']['Birthday'], "%d-%m-%Y")
-            session.add(man)
-            session.commit()
-            data['content'] = []
-            data['token'] = man.Token
-            data['status'] = '200'
-            data['message'] = 'Данные вашего аккаунта измнены! Ваш Id: ' + str(man.Id)
-            logger.info(data['message'] + ' ' + data['status'])
-        else:
-            data['status'] = '404'
-            data['message'] = 'Пользователь не найден!'
-            logger.error(data['message'] + ' ' + data['status'])
+        man = dict_to_object(man, data['content'])
+        man.Birthday = datetime.datetime.strptime(data['content']['Birthday'], "%d-%m-%Y")
+        session.add(man)
+        session.commit()
+        data['content'] = []
+        data['token'] = man.Token
+        data['status'] = '200'
+        data['message'] = 'Данные вашего аккаунта измнены! Ваш Id: ' + str(man.Id)
+        logger.info(data['message'] + ' ' + data['status'])
 
         return data
 
     @check_500
     @check_token
     def log_out(data):
+        """
+        Метод для выхода клиента из системы
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь с информацией о выходе из системы или сообщение об ошибке
+        """
         tarantool_space.delete((data['token']))
         data = {}
         data['content'] = []
@@ -316,6 +449,21 @@ class Person(Base):
 
 
 class Company(Base):
+    u"""
+        Класс компании
+
+        Атрибуты
+        ---
+        Id (Integer): Уникальный идентификатор
+        Name (String): Название компании
+        Phone (String): Телефон
+        Email (String): Адрес электронной почты
+        Note (String): Комментарий к компании
+        DateDel (Date): Дата удаления
+        FIOContact (String): ФИО представителя компании
+        ContactPhone (String): Телефон представителя компании
+        ContactEmail (String): Адрес электронной почты представителя компании
+    """
     __tablename__ = 'Company'
     Id = Column(Integer, primary_key=True)  # pk
     Name = Column(String, nullable=False)
@@ -330,6 +478,16 @@ class Company(Base):
 
 
 class Category(Base):
+    u"""
+        Класс категории
+
+        Атрибуты
+        ---
+        Id (Integer): Уникальный идентификатор
+        NameCat (String): Название категории
+        Icon (String): Путь до иконки
+        DateDel (Date): Дата удаления
+    """
     __tablename__ = 'Category'
     Id = Column(Integer, primary_key=True)  # pk
     NameCat = Column(String, nullable=False)
@@ -339,6 +497,23 @@ class Category(Base):
 
 
 class Contract(Base):
+    u"""
+        Класс договора
+
+        Атрибуты
+        ---
+        Id (Integer): Уникальный идентификатор
+        ClientId (Integer): Уникальный идентификатор клиента
+        CarId (Integer): Уникальный идентификатор автомобиля
+        DateStartContract (Date): Дата начала аренды
+        DateEndContract (Date): Дата окончания аренды
+        Driver (Boolean): Требуется ли водитель для аренды
+        Note (String): Комментарий к заявке
+        Status (Integer): Статус заявки (Активна, завершена, отменена)
+        Comission (Numeric): Комиссия с заявки
+        Cost (Integer): Стоимость аренды
+        DateDel (Date): Дата удаления
+    """
     __tablename__ = 'Contract'
     Id = Column(Integer, primary_key=True)  # pk
     ClientId = Column(Integer, ForeignKey('Person.Id'), nullable=False)  # fk
@@ -357,15 +532,19 @@ class Contract(Base):
     @check_500
     @check_token
     def add_order(data):
+        """
+        Метод для для добавления договора
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь с информацией о создании договора или сообщение об ошибке
+        """
         man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
         car = session.query(Car).filter(Car.Id == data['content']['CarId'], Car.DateDel == None).first()
-        if man is not None:
+        if car is not None:
             start = datetime.datetime.strptime(data['content']['DateStartContract'], "%d-%m-%Y")
             end = datetime.datetime.strptime(data['content']['DateEndContract'], "%d-%m-%Y")
-            if end == start:
-                rez = 1
-            else:
-                rez = (end - start).days
+            rez = (end - start).days
             cost = rez * car.Price
             car_per = car.Percent
             car_fix = car.FixedRate
@@ -390,7 +569,7 @@ class Contract(Base):
             logger.info(data['message'] + ' ' + data['status'])
         else:
             data['status'] = '500'
-            data['message'] = 'Пользователь не найден!'
+            data['message'] = 'Автомобиль не найден!'
             logger.error(data['message'] + ' ' + data['status'])
 
         return data
@@ -398,6 +577,13 @@ class Contract(Base):
     @check_500
     @check_token
     def get_order(data):
+        """
+        Метод для для получение информации договора
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь с информацией договоре или сообщение об ошибке
+        """
         contract = session.query(Contract).filter(Contract.Id == int(data['content']['Id']),
                                                   Contract.DateDel == None).first()
         man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
@@ -421,6 +607,13 @@ class Contract(Base):
     @check_500
     @check_token
     def get_orders(data):
+        """
+        Метод для для получения списка договоров
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь со списком договоров или сообщение об ошибке
+        """
         man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
         list_contract = list(man.client_contracts)
         contracts = []
@@ -443,6 +636,17 @@ class Contract(Base):
 
 
 class Favorite(Base):
+    u"""
+        Класс договора
+
+        Атрибуты
+        ---
+        Id (Integer): Уникальный идентификатор
+        ClientId (Integer): Уникальный идентификатор клиента
+        CarId (Integer): Уникальный идентификатор автомобиля
+        Date_add (Date): Дата добавления в избранное
+        DateDel (Date): Дата удаления
+    """
     __tablename__ = 'Favorites'
     Id = Column(Integer, primary_key=True)  # pk
     ClientId = Column(Integer, ForeignKey('Person.Id'), nullable=False)  # fk
@@ -450,15 +654,19 @@ class Favorite(Base):
     Date_add = Column(Date, nullable=True)
     DateDel = Column(Date, nullable=True)
 
-    # favorite_client = relationship("Person", back_populates="client_favorite")
-    # favorite_car = relationship("Car", back_populates="car_favorite")
-
     @check_500
     @check_token
     def add_favorite(data):
+        """
+        Метод для для добавления автомобиля в избранное клиента
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь с информацией о добавлении автомобиля в избранное или сообщение об ошибке
+        """
         man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
         car = session.query(Car).filter(Car.Id == data['content']['CarId'], Car.DateDel == None).first()
-        if man is not None:
+        if car is not None:
             if car not in man.favorites:
                 fav = Favorite()
                 fav.CarId = car.Id
@@ -476,7 +684,7 @@ class Favorite(Base):
                 logger.error(data['message'] + ' ' + data['status'])
         else:
             data['status'] = '500'
-            data['message'] = 'Пользователь не найден!'
+            data['message'] = 'Автомобиль не найден!'
             logger.error(data['message'] + ' ' + data['status'])
 
         return data
@@ -484,10 +692,16 @@ class Favorite(Base):
     @check_500
     @check_token
     def del_favorite(data):
+        """
+        Метод для для удаления автомобиля из списка избранного клиента
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь с информацией об удалении автомобиля из списка избранного клиента или сообщение об ошибке
+        """
         man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
         fav = session.query(Favorite).filter(Favorite.ClientId == man.Id,
                                              Favorite.CarId == data['content']['CarId']).first()
-        # fav.DateDel = datetime.date.today()
         if fav is not None:
             session.delete(fav)
             session.commit()
@@ -505,6 +719,13 @@ class Favorite(Base):
     @check_500
     @check_token
     def get_favorites(data):
+        """
+        Метод для для получения списка автомобилей из избранного
+            Параметры:
+                data: словарь с информацией полученной от клиента
+            Возвращаемое значение:
+                data: словарь со спиком автомобилей или сообщение об ошибке
+        """
         man = session.query(Person).filter(Person.Token == data['token'], Person.DateDel == None).first()
         list_favorites = list(man.favorites)
         favorites = []
@@ -526,16 +747,20 @@ class Favorite(Base):
 
 
 ###########################################################################################################
-client_count = threading.BoundedSemaphore(2)
 client_data = {}
 # удаление всех записей в Tarantool (очистка перед каждым запуском, в будущем можно очищать раз в 24 часа)
 connection_tarantool.call('box.space.user_token:truncate', ())
 
-def launch_server():
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # создаем сокет
-    server_socket.bind((config['ADDRESS'], config['PORT']))  # определяем адрес и порт
-    server_socket.listen()  # прослушиваем порт от одного клиента
-    logger.info('Сервер запущен по адресу: ' + config['ADDRESS'] + ':' + str(config['PORT']))
+
+def server_thread(connection, address):  # pragma: no cover
+    """
+    Метод для запуска сервера в потоке
+        Параметры:
+            connection: данные о соединении клиента
+            address: адресс клиента в сети
+        Возвращаемое значение:
+            None
+    """
     ###########################################################################################################
     cars_dict = {
         'get_cars': Car.get_cars,
@@ -559,38 +784,77 @@ def launch_server():
         'get_orders': Contract.get_orders,
     }
 
+    def recvall(sock, n):
+        """
+        Метод для получение данных от клиента в виде байтов
+            Параметры:
+                sock: информация о сокете
+                n: количество полученных байт
+            Возвращаемое значение:
+                data: словарь с информацией
+        """
+        # Функция для получения n байт
+        data = b''
+        while len(data) < n:
+            packet = sock.recv(n - len(data))
+            if not packet:
+                return None
+            data += packet
+        return data
+
+    def recv_msg(sock):
+        """
+        Метод для определения длинны сообщения от клиента
+            Параметры:
+                sock: информация о сокете
+        """
+        raw_msglen = recvall(sock, 4)
+        if not raw_msglen:
+            return None
+        msglen = struct.unpack('>I', raw_msglen)[0]
+        return recvall(sock, msglen).decode()
+
+    while True:
+        logger.info('Клиент с адресом' + str(address) + ' подключен')
+        try:
+            client_data = recv_msg(connection)
+        except ConnectionResetError:
+            logger.info('Клиент с адресом' + str(address) + ' отключился')
+            exit()
+        if not client_data:
+            logger.info('Клиент с адресом' + str(address) + ' отключился')
+            exit()
+        client_data = json.loads(client_data)
+        new_client_dict = client_data
+        if client_data['endpoint'] == 'cars':
+            q = client_data['action']
+            new_client_dict = cars_dict.get(q)(client_data)
+        if client_data['endpoint'] == 'clients':
+            q = client_data['action']
+            new_client_dict = person_dict.get(q)(client_data)
+        if client_data['endpoint'] == 'orders':
+            q = client_data['action']
+            new_client_dict = contract_dict.get(q)(client_data)
+        client_data = {}
+        new_client_dict = (bytes(json.dumps(new_client_dict, ensure_ascii=False, default=str).encode()))
+        msg = struct.pack('>I', len(new_client_dict)) + new_client_dict
+        connection.sendall(msg)
+
+
+def launch_server():  # pragma: no cover
+    """Метод для инициализации сокета и ожидания подключения клиента """
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # создаем сокет
+    server_socket.bind((config['address'], config['port']))  # определяем адрес и порт
+    server_socket.listen()  # прослушиваем порт от одного клиента
+    logger.info('Сервер запущен по адресу: ' + config['address'] + ':' + str(config['port']))
     while True:
         connection, address = server_socket.accept()
-        client_count.acquire()
-        print('Количество доступных подключений: ', client_count._value)
-        logger.info('Клиент с адресом' + str(address) + ' подключен')
-        while True:
-            try:
-                client_data = connection.recv(4096)
-            except ConnectionResetError:
-                logger.info('Клиент с адресом' + str(address) + ' отключился')
-                client_count.release()
-                print('Количество доступных подключений: ', client_count._value)
-                break
-            if not client_data:
-                logger.info('Клиент с адресом' + str(address) + ' отключился')
-                client_count.release()
-                print('Количество доступных подключений: ', client_count._value)
-                break
-            client_data = json.loads(client_data.decode())
-            new_client_dict = client_data
-            if client_data['endpoint'] == 'cars':
-                q = client_data['action']
-                new_client_dict = cars_dict.get(q)(client_data)
-            if client_data['endpoint'] == 'clients':
-                q = client_data['action']
-                new_client_dict = person_dict.get(q)(client_data)
-            if client_data['endpoint'] == 'orders':
-                q = client_data['action']
-                new_client_dict = contract_dict.get(q)(client_data)
-            client_data = {}
-            connection.sendall(bytes(json.dumps(new_client_dict, ensure_ascii=False, default=str), 'UTF-8'))
+        th = Thread(target=server_thread, args=(connection, address))
+        th.start()
+        logger.info('Сервер в потоке: ' + th.name)
+        logger.info('Всего потоков: ' + str(threading.activeCount() - 1))
 
 
 # Base.metadata.create_all(db_engine)
-launch_server()
+# launch_server()
+

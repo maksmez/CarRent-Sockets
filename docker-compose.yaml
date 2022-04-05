@@ -1,0 +1,21 @@
+version: "3.7"
+services:
+  tarantool:
+    container_name: mytarantool_2
+    image: tarantool/tarantool:1.7
+    command: tarantool /var/lib/tarantool/app.init.lua
+    ports:
+      - 3302:3302
+    volumes:
+      - C:/Users/maksm/Desktop/CarRent/docker/tarantool:/var/lib/tarantool
+  server:
+      container_name: server_socket
+      build: .
+      depends_on:
+        - tarantool
+      ports:
+        - 9090:9090
+      links:
+        - tarantool
+      volumes:
+        - C:/Users/maksm/Desktop/CarRent/docker:/carrent

@@ -1,6 +1,8 @@
 import hashlib
 import json
 import socket
+import struct
+
 from termcolor import cprint
 
 client_socket = socket.socket()  # создаем сокет
@@ -118,6 +120,8 @@ def launch_client():
                     cprint('Это действие недоступно!', 'red')
                     break
                 client_data = ch_dc[2](client_data)
+            except Exception as e:
+                print(e)
             except TypeError:
                 cprint('Ошибка! Такого пункта нет!', 'red')
                 break
@@ -125,12 +129,35 @@ def launch_client():
                 cprint('Ошибка, проверьте введенные данные!', 'red')
                 break
 
+def recvall(sock, n):
+    # Функция для получения n байт или возврата None если получен EOF
+    data = b''
+    while len(data) < n:
+        packet = sock.recv(n - len(data))
+        if not packet:
+            return None
+        data += packet
+    return data
+
+def recv_msg(sock):
+    # Получение длины сообщения и распаковка в integer
+    raw_msglen = recvall(sock, 4)
+    if not raw_msglen:
+        return None
+    msglen = struct.unpack('>I', raw_msglen)[0]
+    # Получение данных
+    return recvall(sock, msglen).decode()
 
 def send_and_receive(client_data):
+    # send_data = json.dumps(client_data)
+    # client_socket.sendall(bytes(send_data, 'UTF-8'))  # отправка на сервер
     send_data = json.dumps(client_data)
-    client_socket.sendall(bytes(send_data, 'UTF-8'))  # отправка на сервер
+    send_data = bytes(send_data.encode())
+    msg = struct.pack('>I', len(send_data)) + send_data
+    client_socket.sendall(msg)
 
-    client_data = client_socket.recv(4096).decode()  # получение ответа от сервера
+    client_data = recv_msg(client_socket)
+    # client_data = client_socket.recv(4096).decode()  # получение ответа от сервера
     client_data = json.loads(client_data)
     return client_data
 
@@ -146,6 +173,8 @@ def print_content(client_data):
         print_client_data_fields(client_data)
     else:
         cprint(client_data['message'], 'red')
+    del(client_data['message'])
+    del(client_data['status'])
     return client_data
 
 
