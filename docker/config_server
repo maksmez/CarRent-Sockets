@@ -1,0 +1,29 @@
+salt: b220dfc5-214a-40e1-b37c-94cd1b4bbe26
+connection_string: sqlite:///database.db
+#connection_string: postgresql+psycopg2://root:pass@localhost/postgres
+connection_string_tarantool_ip: tarantool
+connection_string_tarantool_port: 3302
+address: server
+port: 9090
+ttl: 60 # время жизни токена в секундах Unix-time
+ttl_update: 30
+logger_settings:
+  version: 1
+  formatters:
+    simple:
+      format: "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: DEBUG
+      formatter: simple
+    file_handler:
+      class: logging.FileHandler
+      level: DEBUG
+      filename: server_logger.log
+      formatter: simple
+      encoding: UTF-8
+  loggers:
+    server:
+      handlers: [ console, file_handler ]
+      level: DEBUG

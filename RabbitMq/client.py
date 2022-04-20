@@ -5,10 +5,22 @@ import hashlib
 import json
 import socket
 import struct
+import threading
+from time import sleep
 
+import pika
 from termcolor import cprint
 
-client_socket = socket.socket()  # создаем сокет
+
+try:
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    channel = connection.channel()
+    channel.queue_declare(queue='client_to_server')
+    channel.queue_declare(queue='server_to_client')
+except pika.exceptions.AMQPConnectionError:
+    print('RabbitMQ не подключен!!')
+    exit()
+# client_socket = socket.socket()  # создаем сокет
 
 car_values_list = {
     'Transmission': ['Механическая', 'Автоматическая'],
@@ -87,7 +99,8 @@ def launch_client():
         15: ['clients', 'log_out', log_out, 'чтобы выйти из аккаунта'],
     }
     try:
-        client_socket.connect(('localhost', 9090))  # подключаемся к серверу
+        print('bubu')
+        # client_socket.connect(('localhost', 9090))  # подключаемся к серверу
     except ConnectionRefusedError:
         print('Сервер не запущен')
         return False
@@ -111,7 +124,7 @@ def launch_client():
                 break
             try:
                 if choice == 0:
-                    client_socket.close()
+                    # client_socket.close()
                     cprint('Завершение работы...', 'blue')
                     return
                 ch_dc = choice_dict.get(choice)
@@ -163,6 +176,15 @@ def recv_msg(sock):
     # Получение данных
     return recvall(sock, msglen).decode()
 
+def new_def():
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    channel_2 = connection.channel()
+    channel_2.queue_declare(queue='server_to_client')
+    perem3 = channel_2.basic_get(queue='server_to_client', auto_ack=True)
+    perem3 = perem3[2].decode()
+    return perem3
+
+
 def send_and_receive(client_data):
     """
     Метод для получения и отправки данных серверу\r\n
@@ -174,14 +196,10 @@ def send_and_receive(client_data):
     # send_data = json.dumps(client_data)
     # client_socket.sendall(bytes(send_data, 'UTF-8'))  # отправка на сервер
     send_data = json.dumps(client_data)
-    send_data = bytes(send_data.encode())
-    msg = struct.pack('>I', len(send_data)) + send_data
-    client_socket.sendall(msg)
-
-    client_data = recv_msg(client_socket)
-    # client_data = client_socket.recv(4096).decode()  # получение ответа от сервера
-    client_data = json.loads(client_data)
-    return client_data
+    channel.basic_publish(exchange='', routing_key='client_to_server', body= send_data)
+    sleep(0.1)
+    res = json.loads(new_def())
+    return res
 
 
 def print_content(client_data):
@@ -497,7 +515,5 @@ def get_favorites(client_data):
     client_data = print_content(client_data)
     return client_data
 ###########Favorite###############################################
-
-
 
 launch_client()

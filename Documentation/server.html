@@ -1,0 +1,4677 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>server API documentation</title>
+<meta name="description" content="Модуль выполняющий роль сервера …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>server</code></h1>
+</header>
+<section id="section-intro">
+<p>Модуль выполняющий роль сервера</p>
+<p>Для запуска сервера необходимо настроить конфигурационный файл config_server.yaml</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">u&#34;&#34;&#34;
+Модуль выполняющий роль сервера\r\n
+Для запуска сервера необходимо настроить конфигурационный файл config_server.yaml
+&#34;&#34;&#34;
+import decimal
+import hashlib
+import struct
+import threading
+import uuid
+from threading import Thread
+import yaml
+from sqlalchemy import create_engine, Integer, String, Column, Date, ForeignKey, Numeric, Boolean
+from sqlalchemy.ext.declarative import declarative_base
+import socket
+import json
+from sqlalchemy.orm import Session, relationship
+import logging.config
+import datetime
+import tarantool
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
+
+from functools import wraps
+with open(&#39;config_server&#39;) as config_server:
+    config = yaml.safe_load(config_server)
+
+#########################################################################################
+logging.config.dictConfig(config[&#39;logger_settings&#39;])
+logger = logging.getLogger(&#39;server&#39;)
+#########################################################################################
+
+try:
+    connection_tarantool = tarantool.connect(config[&#39;connection_string_tarantool_ip&#39;],
+                                             config[&#39;connection_string_tarantool_port&#39;])
+    tarantool_space = connection_tarantool.space(&#39;user_token&#39;)
+    db_engine = create_engine(config[&#39;connection_string&#39;])
+    db_engine.connect()
+    Base = declarative_base()
+
+    session_factory = sessionmaker(bind=db_engine)
+    session = scoped_session(session_factory)
+    # session = Session(bind=db_engine)
+
+except tarantool.error.NetworkError:
+    logger.error(&#39;Tarantool не подключен!!&#39;)
+    exit()
+except Exception as e:
+    logger.error(e)
+    exit()
+
+salt = config[&#39;salt&#39;]
+
+
+#########################################################################################
+def object_to_dict(obj):
+    &#34;&#34;&#34;
+    Метод для преобразования объекта класса в словарь\r\n
+    Параметры:\r\n
+        obj: объект какого-либо класса\r\n
+    &#34;&#34;&#34;
+    return {x.name: getattr(obj, x.name)
+            for x in obj.__table__.columns}
+
+#########################################################################################
+def dict_to_object(obj, dict):
+    &#34;&#34;&#34;
+    Метод для преобразования словаря в объект класса\r\n
+    Параметры:\r\n
+        obj: объект какого-либо класса\r\n
+        dict: словарь\r\n
+    &#34;&#34;&#34;
+    for x in obj.__table__.columns:
+        if x.name in dict:
+            setattr(obj, x.name, dict[x.name])
+    return obj
+
+#########################################################################################
+
+def check_500(any_func):
+    u&#34;&#34;&#34;Декоратор для обнаружения каких-либо ошибок на сервере&#34;&#34;&#34;
+    @wraps(any_func)
+    def checking(data):
+        try:
+            return any_func(data)
+        except:
+            data[&#39;content&#39;] = []
+            data[&#39;status&#39;] = &#39;500&#39;
+            data[&#39;message&#39;] = &#39;Произошла ошибка на сервере&#39;
+            logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+            return data
+
+    return checking
+
+def check_token(any_func):
+    u&#34;&#34;&#34;Декоратор для проверки токена клиента&#34;&#34;&#34;
+    @wraps(any_func)
+    def checking(data):
+        try:
+            tarantool_token = tarantool_space.select(data[&#39;token&#39;]).data[0]
+            time_now = int(datetime.datetime.now().timestamp())
+            last_time_token = time_now - tarantool_token[2]
+            if last_time_token &lt;= config[&#39;ttl&#39;]:
+                if last_time_token &lt;= config[&#39;ttl_update&#39;]:
+                    return any_func(data)
+                else:
+                    tarantool_space.update(data[&#39;token&#39;], [(&#39;=&#39;, 2, time_now)])
+                    return any_func(data)
+            else:
+                tarantool_space.delete((data[&#39;token&#39;]))
+                del data[&#39;token&#39;]
+                data[&#39;content&#39;] = []
+                data[&#39;status&#39;] = &#39;403&#39;
+                data[&#39;message&#39;] = &#39;Время вашего сеанса истекло!&#39; + &#39;\n&#39; + &#39;Авторизируйтесь снова!&#39;
+        except:
+            data[&#39;content&#39;] = []
+            data[&#39;status&#39;] = &#39;403&#39;
+            data[&#39;message&#39;] = &#39;Вы не авторизованы, действие запрещено&#39;
+            logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        return data
+
+    return checking
+
+#########################################################################################
+
+class Car(Base):
+    u&#34;&#34;&#34;
+    Класс транспортного средства
+
+    Атрибуты\r\n
+    ---\r\n
+    Id (Integer): Уникальный идентификатор\r\n
+    CompanyID (Integer): Уникальный идентификатор компании\r\n
+    Location (String): Адрес расположения автомобиля\r\n
+    Photos (String): Путь до фотографий\r\n
+    RentCondition (String): Условия аренды\r\n
+    Header (String): Заголовок объявления\r\n
+    Driver (Boolean): Есть ли водитель у автомобиля\r\n
+    status (Boolean): Статус автомобиля (скрыто или нет)\r\n
+    CategoryID (Integer): Уникальный идентификатор категории\r\n
+    CategoryVU (String): Категория ВУ автомобиля\r\n
+    DateDel (Date): Дата удаления\r\n
+    FixedRate (Numeric): Фиксированная комиссия\r\n
+    Percent (Numeric): Процент комиссии\r\n
+    Brand_and_name (String):Марка и модель автомобиля\r\n
+    Transmission (Integer): Тип трансмиссии\r\n
+    Engine (Integer): Тип двигателя\r\n
+    Car_type (Integer): Тип кузова\r\n
+    Drive (Integer): Тип привода\r\n
+    Wheel_drive (Integer): Положение руля\r\n
+    Year (Integer): Год выпуска\r\n
+    Power (Integer): Мощность\r\n
+    Price (Integer): Стоимость аренды\r\n
+    ---
+    &#34;&#34;&#34;
+    __tablename__ = &#39;Cars&#39;
+
+    Id = Column(Integer, primary_key=True, doc=&#34;Уникальный идентификатор&#34;)  # pk
+    CompanyID = Column(Integer, ForeignKey(&#39;Company.Id&#39;), nullable=False, doc=&#34;Уникальный идентификатор компании&#34;)  # fk
+    Location = Column(String(250), nullable=False, doc=&#34;Адрес расположения автомобиля&#34;)
+    Photos = Column(String, default=&#39;&#39;, doc=&#34;Путь до фотографий&#34;)
+    RentCondition = Column(String, default=&#39;Описание условий аренды&#39;, doc=&#34;Условия аренды&#34;)
+    Header = Column(String, nullable=False, doc=&#34;Заголовок объявления&#34;)
+    Driver = Column(Boolean, nullable=False, doc=&#34;Есть ли водитель у автомобиля&#34;)
+    status = Column(Boolean, nullable=True, doc=&#34;Статус автомобиля (скрыто или нет)&#34;)
+    CategoryID = Column(Integer, ForeignKey(&#39;Category.Id&#39;), nullable=False, doc=&#34;Уникальный идентификатор категории&#34;)  # fk
+    CategoryVU = Column(String, nullable=False, doc=&#34;Категория ВУ автомобиля&#34;)
+    DateDel = Column(Date, nullable=True, doc=&#34;Дата удаления&#34;)
+    FixedRate = Column(Numeric, nullable=True, doc=&#34;Фиксированная комиссия&#34;)
+    Percent = Column(Numeric, nullable=True, doc=&#34;Процент комиссии&#34;)
+
+    car_company = relationship(&#34;Company&#34;, back_populates=&#34;company_cars&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Company&#34;)
+    car_category = relationship(&#34;Category&#34;, back_populates=&#34;category_cars&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Category&#34;)
+    car_contract = relationship(&#34;Contract&#34;, back_populates=&#34;contract_car&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Contract&#34;)
+
+    Brand_and_name = Column(String, nullable=False, doc=&#34;Марка и модель автомобиля&#34;)
+    Transmission = Column(Integer, nullable=True, default=0, doc=&#34;Тип трансмиссии&#34;)
+    Engine = Column(Integer, nullable=True, default=0, doc=&#34;Тип двигателя&#34;)
+    Car_type = Column(Integer, nullable=True, default=0, doc=&#34;Тип кузова&#34;)
+    Drive = Column(Integer, nullable=True, default=0, doc=&#34;Тип привода&#34;)
+    Wheel_drive = Column(Integer, nullable=True, default=0, doc=&#34;Положение руля&#34;)
+    Year = Column(Integer, nullable=False, doc=&#34;Год выпуска&#34;)
+    Power = Column(Integer, nullable=False, doc=&#34;Мощность&#34;)
+    Price = Column(Integer, nullable=False, doc=&#34;Стоимость аренды&#34;)
+
+    @check_500
+    @check_token
+    def get_car(data):
+        &#34;&#34;&#34;
+        Метод для получения информации об автомобиле\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией об автомобиле\r\n
+        &#34;&#34;&#34;
+        car = session.query(Car).filter(Car.Id == int(data[&#39;content&#39;][&#39;Id&#39;]), Car.DateDel == None).first()
+        if car is not None:
+            data[&#39;content&#39;] = [object_to_dict(car)]
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;message&#39;] = &#39;Просмотр ТС c id &#39; + str(data[&#39;content&#39;][0][&#39;Id&#39;])
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;ТС с id &#39; + str(data[&#39;content&#39;][&#39;Id&#39;]) + &#39; не найдено&#39;
+            logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+        return data
+
+    @check_500
+    @check_token
+    def get_cars(data):
+        &#34;&#34;&#34;
+        Метод для получения списка автомобилей определенной категории\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с данными автомобилей определенной категории\r\n
+        &#34;&#34;&#34;
+        category = session.query(Category).get(int(data[&#39;content&#39;][&#39;CategoryID&#39;]))
+        if category == None:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;Категории с id &#39; + str(data[&#39;content&#39;][&#39;CategoryID&#39;]) + &#39; нет&#39;
+            logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            cars = category.category_cars
+            new_cars = []  # [{} {} {}]
+            for car in cars:
+                if car.DateDel == None:
+                    dict = object_to_dict(car)
+                    new_cars.append(dict)
+            if new_cars:
+                data[&#39;status&#39;] = &#39;200&#39;
+                data[&#39;message&#39;] = &#39;Просмотр списка ТС с категорией &#39; + str(data[&#39;content&#39;][&#39;CategoryID&#39;])
+                logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+                data[&#39;content&#39;] = new_cars
+            else:
+                data[&#39;status&#39;] = &#39;404&#39;
+                data[&#39;message&#39;] = &#39;ТС с категорией &#39; + str(data[&#39;content&#39;][&#39;CategoryID&#39;]) + &#39; нет&#39;
+                logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+
+class Person(Base):
+    u&#34;&#34;&#34;
+        Класс клиента
+
+        Атрибуты\r\n
+        ---\r\n
+        Id (Integer): Уникальный идентификатор\r\n
+        CompanyID (Integer): Уникальный идентификатор компании\r\n
+        Name (String): Имя\r\n
+        Surname (String): Фамилия\r\n
+        Birthday (Date): Дата рождения\r\n
+        Phone (String): Телефон\r\n
+        Password (String): Пароль\r\n
+        Token (String): Токен\r\n
+        Email (String): Адрес электронной почты\r\n
+        Position (Integer): Статус пользователя (Клиент, сотрудник, администратор)\r\n
+        Comment (String): Комментарий к клиенту\r\n
+        CategoryVuID (String): Категории ВУ\r\n
+        NumVU (String): Номер ВУ\r\n
+        DateDel (Date): Дата удаления\r\n
+        ---
+        &#34;&#34;&#34;
+    __tablename__ = &#39;Person&#39;
+    Id = Column(Integer, primary_key=True, doc=&#34;Уникальный идентификатор&#34;)  # pk
+    CompanyID = Column(Integer, nullable=True, default=0, doc=&#34;Уникальный идентификатор компании&#34;)  # fk
+    Name = Column(String, nullable=False, doc=&#34;Имя&#34;)
+    Surname = Column(String, nullable=False, doc=&#34;Фамилия&#34;)
+    Birthday = Column(Date, nullable=True, doc=&#34;Дата рождения&#34;)
+    Phone = Column(String, nullable=False, doc=&#34;Телефон&#34;)
+    Password = Column(String, nullable=False, doc=&#34;Пароль&#34;)
+    Token = Column(String, nullable=False, doc=&#34;Токен&#34;)
+    Email = Column(String, nullable=True, doc=&#34;Адрес электронной почты&#34;)
+    Position = Column(Integer, nullable=True, doc=&#34;Статус пользователя (Клиент, сотрудник, администратор)&#34;)
+    Comment = Column(String, nullable=True, doc=&#34;Комментарий к клиенту&#34;)
+    CategoryVuID = Column(String, nullable=False, doc=&#34;Категории ВУ&#34;)
+    NumVU = Column(String, nullable=False, doc=&#34;Номер ВУ&#34;)
+    DateDel = Column(Date, nullable=True, doc=&#34;Дата удаления&#34;)
+
+    client_contracts = relationship(&#34;Contract&#34;, back_populates=&#34;contract_client&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Contract&#34;)
+    favorites = relationship(&#34;Car&#34;, secondary=&#34;Favorites&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Favorite&#34;)
+
+    @check_500
+    def sign_up(data):
+        &#34;&#34;&#34;
+        Метод для регистрации клиента в системе\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией о регистрации или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Phone == data[&#39;content&#39;][&#39;Phone&#39;], Person.DateDel == None).first()
+        if man is None:
+            salted = hashlib.sha256(data[&#39;content&#39;][&#39;Password&#39;].encode() + salt.encode()).hexdigest()
+            data[&#39;content&#39;][&#39;Password&#39;] = salted
+            person = Person(**data[&#39;content&#39;])
+            person.Birthday = datetime.datetime.strptime(data[&#39;content&#39;][&#39;Birthday&#39;], &#34;%d-%m-%Y&#34;)
+            person.DateDel = None
+            person.CompanyID = None
+            person.Position = 0
+            person.Comment = &#39;Я клиент&#39;
+            person.Token = uuid.uuid4().hex
+            session.add(person)
+            session.commit()
+            tarantool_space.insert(
+                (person.Token, person.Id, int(datetime.datetime.now().timestamp())))
+            data = {}
+            data[&#39;token&#39;] = person.Token
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;content&#39;] = []
+            data[&#39;message&#39;] = &#39;Вы успешно зарегистрировались! Ваш Id: &#39; + str(person.Id)
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;500&#39;
+            data[&#39;message&#39;] = &#39;Пользователь с таким телефоном уже зарегистрирован!&#39;
+            logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        return data
+
+    @check_500
+    def sign_in(data):
+        &#34;&#34;&#34;
+        Метод для автоизации клиента в системе\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией об авторизации или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        salted = hashlib.sha256(data[&#39;content&#39;][&#39;Password&#39;].encode() + salt.encode()).hexdigest()
+        man = session.query(Person).filter(Person.Phone == data[&#39;content&#39;][&#39;Phone&#39;], Person.Password == salted,
+                                           Person.DateDel == None).first()
+        if man is not None:
+            data[&#39;content&#39;] = []
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;token&#39;] = man.Token = uuid.uuid4().hex
+            session.add(man)
+            session.commit()
+            tarantool_space.insert(
+                (man.Token, man.Id, int(datetime.datetime.now().timestamp())))
+            data[&#39;message&#39;] = &#39;Вы авторизовались. &#39; + &#39;Ваш id: &#39; + str(man.Id)
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;Неверный телефон или пароль. Попробуйте снова. &#39;
+            logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def get_client(data):
+        &#34;&#34;&#34;
+        Метод для получении личных данных клиента\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с личной информацией клиента или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        data[&#39;content&#39;] = [object_to_dict(man)]
+        del (data[&#39;content&#39;][0][&#39;Password&#39;])
+        del (data[&#39;content&#39;][0][&#39;Token&#39;])
+        data[&#39;token&#39;] = man.Token
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;message&#39;] = &#39;Данные клиента с id &#39; + str(man.Id)
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def del_client(data):
+        &#34;&#34;&#34;
+        Метод для удаления клиента из системы\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией об удалении или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        man.DateDel = datetime.date.today()
+        session.add(man)
+        session.commit()
+        data[&#39;content&#39;] = []
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;message&#39;] = &#39;Аккаунт с id &#39; + str(man.Id) + &#39; удален&#39;
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def edit_pass(data):
+        &#34;&#34;&#34;
+        Метод для смены пароля клиента\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией о смене пароля или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        salted = hashlib.sha256(data[&#39;content&#39;][&#39;Password&#39;].encode() + salt.encode()).hexdigest()
+        man.Password = salted
+        session.add(man)
+        session.commit()
+        data[&#39;content&#39;] = []
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;token&#39;] = man.Token
+        data[&#39;message&#39;] = &#39;Пароль изменен! Ваш Id: &#39; + str(man.Id)
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def edit_client(data):
+        &#34;&#34;&#34;
+        Метод для редактирования личных данных клиента\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией об успешном редактировании или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        man = dict_to_object(man, data[&#39;content&#39;])
+        man.Birthday = datetime.datetime.strptime(data[&#39;content&#39;][&#39;Birthday&#39;], &#34;%d-%m-%Y&#34;)
+        session.add(man)
+        session.commit()
+        data[&#39;content&#39;] = []
+        data[&#39;token&#39;] = man.Token
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;message&#39;] = &#39;Данные вашего аккаунта измнены! Ваш Id: &#39; + str(man.Id)
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def log_out(data):
+        &#34;&#34;&#34;
+        Метод для выхода клиента из системы\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией о выходе из системы или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        tarantool_space.delete((data[&#39;token&#39;]))
+        data = {}
+        data[&#39;content&#39;] = []
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;message&#39;] = &#39;Вы вышли из аккаунта!&#39;
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+
+class Company(Base):
+    u&#34;&#34;&#34;
+        Класс компании
+
+        Атрибуты\r\n
+        ---\r\n
+        Id (Integer): Уникальный идентификатор\r\n
+        Name (String): Название компании\r\n
+        Phone (String): Телефон\r\n
+        Email (String): Адрес электронной почты\r\n
+        Note (String): Комментарий к компании\r\n
+        DateDel (Date): Дата удаления\r\n
+        FIOContact (String): ФИО представителя компании\r\n
+        ContactPhone (String): Телефон представителя компании\r\n
+        ContactEmail (String): Адрес электронной почты представителя компании\r\n
+        ---
+    &#34;&#34;&#34;
+    __tablename__ = &#39;Company&#39;
+    Id = Column(Integer, primary_key=True, doc=&#34;Уникальный идентификатор&#34;)  # pk
+    Name = Column(String, nullable=False, doc=&#34;Название компании&#34;)
+    Phone = Column(String, nullable=False, doc=&#34;Телефон&#34;)
+    Email = Column(String, nullable=True, doc=&#34;Адрес электронной почты&#34;)
+    Note = Column(String, nullable=True, doc=&#34;Комментарий к компании&#34;)
+    DateDel = Column(Date, nullable=True, doc=&#34;Дата удаления&#34;)
+    FIOContact = Column(String, nullable=False, doc=&#34;ФИО представителя компании&#34;)
+    ContactPhone = Column(String, nullable=False, doc=&#34;Телефон представителя компании&#34;)
+    ContactEmail = Column(String, nullable=True, doc=&#34;Адрес электронной почты представителя компании&#34;)
+    company_cars = relationship(&#34;Car&#34;, back_populates=&#34;car_company&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Car&#34;)
+
+
+class Category(Base):
+    u&#34;&#34;&#34;
+        Класс категории
+
+        Атрибуты\r\n
+        ---\r\n
+        Id (Integer): Уникальный идентификатор\r\n
+        NameCat (String): Название категории\r\n
+        Icon (String): Путь до иконки\r\n
+        DateDel (Date): Дата удаления\r\n
+        ---
+    &#34;&#34;&#34;
+    __tablename__ = &#39;Category&#39;
+    Id = Column(Integer, primary_key=True, doc=&#34;Уникальный идентификатор&#34;)  # pk
+    NameCat = Column(String, nullable=False, doc=&#34;Название категории&#34;)
+    Icon = Column(String, nullable=True, doc=&#34;Путь до иконки&#34;)
+    DateDel = Column(Date, nullable=True, doc=&#34;Дата удаления&#34;)
+    category_cars = relationship(&#34;Car&#34;, back_populates=&#34;car_category&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Car&#34;)
+
+
+class Contract(Base):
+    u&#34;&#34;&#34;
+        Класс договора
+
+        Атрибуты\r\n
+        ---\r\n
+        Id (Integer): Уникальный идентификатор\r\n
+        ClientId (Integer): Уникальный идентификатор клиента\r\n
+        CarId (Integer): Уникальный идентификатор автомобиля\r\n
+        DateStartContract (Date): Дата начала аренды\r\n
+        DateEndContract (Date): Дата окончания аренды\r\n
+        Driver (Boolean): Требуется ли водитель для аренды\r\n
+        Note (String): Комментарий к заявке\r\n
+        Status (Integer): Статус заявки (Активна, завершена, отменена)\r\n
+        Comission (Numeric): Комиссия с заявки\r\n
+        Cost (Integer): Стоимость аренды\r\n
+        DateDel (Date): Дата удаления\r\n
+        ---
+    &#34;&#34;&#34;
+    __tablename__ = &#39;Contract&#39;
+    Id = Column(Integer, primary_key=True, doc=&#34;Уникальный идентификатор&#34;)  # pk
+    ClientId = Column(Integer, ForeignKey(&#39;Person.Id&#39;), nullable=False, doc=&#34;Уникальный идентификатор клиента&#34;)  # fk
+    CarId = Column(Integer, ForeignKey(&#39;Cars.Id&#39;), nullable=False, doc=&#34;Уникальный идентификатор автомобиля&#34;)  # fk
+    DateStartContract = Column(Date, nullable=False, doc=&#34;Дата начала аренды&#34;)
+    DateEndContract = Column(Date, nullable=False, doc=&#34;Дата окончания аренды&#34;)
+    Driver = Column(Boolean, nullable=False, doc=&#34;Требуется ли водитель для аренды&#34;)
+    Note = Column(String, nullable=True, doc=&#34;Комментарий к заявке&#34;)
+    Status = Column(Integer, nullable=False, doc=&#34;Статус заявки (Активна, завершена, отменена)&#34;)
+    Comission = Column(Numeric, nullable=False, doc=&#34;Комиссия с заявки&#34;)
+    Cost = Column(Integer, nullable=False, doc=&#34;Стоимость аренды&#34;)
+    DateDel = Column(Date, nullable=True, doc=&#34;Дата удаления&#34;)
+    contract_client = relationship(&#34;Person&#34;, back_populates=&#34;client_contracts&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Person&#34;)
+    contract_car = relationship(&#34;Car&#34;, back_populates=&#34;car_contract&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Car&#34;)
+
+    @check_500
+    @check_token
+    def add_order(data):
+        &#34;&#34;&#34;
+        Метод для для добавления договора\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией о создании договора или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        car = session.query(Car).filter(Car.Id == data[&#39;content&#39;][&#39;CarId&#39;], Car.DateDel == None).first()
+        if car is not None:
+            start = datetime.datetime.strptime(data[&#39;content&#39;][&#39;DateStartContract&#39;], &#34;%d-%m-%Y&#34;)
+            end = datetime.datetime.strptime(data[&#39;content&#39;][&#39;DateEndContract&#39;], &#34;%d-%m-%Y&#34;)
+            rez = (end - start).days
+            cost = rez * car.Price
+            car_per = car.Percent
+            car_fix = car.FixedRate
+            per1 = car_per * decimal.Decimal(0.01)
+            per2 = round((per1 * decimal.Decimal(cost)) + car_fix, 2)
+
+            contract = Contract(**data[&#39;content&#39;])
+            contract.DateStartContract = datetime.datetime.strptime(data[&#39;content&#39;][&#39;DateStartContract&#39;],
+                                                                    &#34;%d-%m-%Y&#34;)
+            contract.DateEndContract = datetime.datetime.strptime(data[&#39;content&#39;][&#39;DateEndContract&#39;], &#34;%d-%m-%Y&#34;)
+            contract.ClientId = man.Id
+            contract.CarId = car.Id
+            contract.Cost = cost
+            contract.Comission = per2
+            contract.Driver = False
+            contract.Status = 0
+            session.add(contract)
+            session.commit()
+            data[&#39;content&#39;] = []
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;message&#39;] = &#39;Заявка добавлена! Id заявки: &#39; + str(contract.Id)
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;500&#39;
+            data[&#39;message&#39;] = &#39;Автомобиль не найден!&#39;
+            logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def get_order(data):
+        &#34;&#34;&#34;
+        Метод для для получение информации договора\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией договоре или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        contract = session.query(Contract).filter(Contract.Id == int(data[&#39;content&#39;][&#39;Id&#39;]),
+                                                  Contract.DateDel == None).first()
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        l = list(filter(lambda x: x.Id == int(data[&#39;content&#39;][&#39;Id&#39;]), man.client_contracts))
+        contract = l[0] if l != [] else None
+        if contract is not None:
+            data[&#39;content&#39;] = [object_to_dict(contract)]
+            c = contract.contract_car.Id
+            data[&#39;content&#39;][0][&#39;CarId&#39;] = contract.contract_car.Brand_and_name + &#39;: id &#39; + str(
+                contract.contract_car.Id)
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;message&#39;] = &#39;Просмотр заявки c id &#39; + str(data[&#39;content&#39;][0][&#39;Id&#39;])
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;Заявка с id &#39; + str(data[&#39;content&#39;][&#39;Id&#39;]) + &#39; не найдена&#39;
+            logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def get_orders(data):
+        &#34;&#34;&#34;
+        Метод для для получения списка договоров\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь со списком договоров или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        list_contract = list(man.client_contracts)
+        contracts = []
+        for o in list_contract:
+            object = object_to_dict(o)
+            c = o.contract_car
+            object[&#39;CarId&#39;] = c.Brand_and_name + &#39;: id &#39; + str(c.Id)
+            contracts.append(object)
+        if contracts:
+            data[&#39;content&#39;] = contracts
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;message&#39;] = &#39;Просмотр заявок клиента с id &#39; + str(man.Id)
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;Заявок у клиента с id &#39; + str(man.Id) + &#39; нет!&#39;
+            logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+
+class Favorite(Base):
+    u&#34;&#34;&#34;
+        Класс договора
+
+        Атрибуты\r\n
+        ---\r\n
+        Id (Integer): Уникальный идентификатор\r\n
+        ClientId (Integer): Уникальный идентификатор клиента\r\n
+        CarId (Integer): Уникальный идентификатор автомобиля\r\n
+        Date_add (Date): Дата добавления в избранное\r\n
+        DateDel (Date): Дата удаления\r\n
+        ---
+    &#34;&#34;&#34;
+    __tablename__ = &#39;Favorites&#39;
+    Id = Column(Integer, primary_key=True, doc=&#34;Уникальный идентификатор&#34;)  # pk
+    ClientId = Column(Integer, ForeignKey(&#39;Person.Id&#39;), nullable=False, doc=&#34;Уникальный идентификатор клиента&#34;)  # fk
+    CarId = Column(Integer, ForeignKey(&#39;Cars.Id&#39;), nullable=False, doc=&#34;Уникальный идентификатор автомобиля&#34;)  # fk
+    Date_add = Column(Date, nullable=True, doc=&#34;Дата добавления в избранное&#34;)
+    DateDel = Column(Date, nullable=True, doc=&#34;Дата удаления&#34;)
+
+    @check_500
+    @check_token
+    def add_favorite(data):
+        &#34;&#34;&#34;
+        Метод для для добавления автомобиля в избранное клиента\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией о добавлении автомобиля в избранное или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        car = session.query(Car).filter(Car.Id == data[&#39;content&#39;][&#39;CarId&#39;], Car.DateDel == None).first()
+        if car is not None:
+            if car not in man.favorites:
+                fav = Favorite()
+                fav.CarId = car.Id
+                fav.ClientId = man.Id
+                fav.Date_add = datetime.date.today()
+                session.add(fav)
+                session.commit()
+                data[&#39;content&#39;] = []
+                data[&#39;status&#39;] = &#39;200&#39;
+                data[&#39;message&#39;] = &#39;Авто добавлено в избранное! Id авто: &#39; + str(car.Id)
+                logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+            else:
+                data[&#39;status&#39;] = &#39;500&#39;
+                data[&#39;message&#39;] = &#39;Авто с id &#39; + str(car.Id) + &#39; уже добавлено в избранное!&#39;
+                logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;500&#39;
+            data[&#39;message&#39;] = &#39;Автомобиль не найден!&#39;
+            logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def del_favorite(data):
+        &#34;&#34;&#34;
+        Метод для для удаления автомобиля из списка избранного клиента\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией об удалении автомобиля из списка избранного клиента или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        fav = session.query(Favorite).filter(Favorite.ClientId == man.Id,
+                                             Favorite.CarId == data[&#39;content&#39;][&#39;CarId&#39;]).first()
+        if fav is not None:
+            session.delete(fav)
+            session.commit()
+            data[&#39;content&#39;] = []
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;message&#39;] = &#39;ТС с id &#39; + str(fav.CarId) + &#39; удалено из избранного&#39;
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;ТС с id &#39; + str(data[&#39;content&#39;][&#39;CarId&#39;]) + &#39; не найдено в избранном&#39;
+            logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def get_favorites(data):
+        &#34;&#34;&#34;
+        Метод для для получения списка автомобилей из избранного\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь со спиком автомобилей или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        list_favorites = list(man.favorites)
+        favorites = []
+        for o in list_favorites:
+            object = {}
+            object[&#39;CarId&#39;] = o.Brand_and_name + &#39;: id &#39; + str(o.Id)
+            favorites.append(object)
+        if favorites:
+            data[&#39;content&#39;] = favorites
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;message&#39;] = &#39;Просмотр списка избранного клиента с id &#39; + str(man.Id)
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;Список избранного у клиента с id &#39; + str(man.Id) + &#39; пуст!&#39;
+            logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+
+###########################################################################################################
+client_data = {}
+# удаление всех записей в Tarantool (очистка перед каждым запуском, в будущем можно очищать раз в 24 часа)
+connection_tarantool.call(&#39;box.space.user_token:truncate&#39;, ())
+
+
+def server_thread(connection, address):  # pragma: no cover
+    &#34;&#34;&#34;
+    Метод для запуска сервера в потоке\r\n
+    Параметры:\r\n
+        connection: данные о соединении клиента\r\n
+        address: адресс клиента в сети\r\n
+    &#34;&#34;&#34;
+    ###########################################################################################################
+    cars_dict = {
+        &#39;get_cars&#39;: Car.get_cars,
+        &#39;get_car&#39;: Car.get_car
+    }
+    person_dict = {
+        &#39;sign_up&#39;: Person.sign_up,
+        &#39;sign_in&#39;: Person.sign_in,
+        &#39;get_client&#39;: Person.get_client,
+        &#39;del_client&#39;: Person.del_client,
+        &#39;edit_pass&#39;: Person.edit_pass,
+        &#39;edit_client&#39;: Person.edit_client,
+        &#39;log_out&#39;: Person.log_out,
+        &#39;add_favorite&#39;: Favorite.add_favorite,
+        &#39;del_favorite&#39;: Favorite.del_favorite,
+        &#39;get_favorites&#39;: Favorite.get_favorites
+    }
+    contract_dict = {
+        &#39;add_order&#39;: Contract.add_order,
+        &#39;get_order&#39;: Contract.get_order,
+        &#39;get_orders&#39;: Contract.get_orders,
+    }
+
+    def recvall(sock, n):
+        &#34;&#34;&#34;
+        Метод для получение данных от клиента в виде байтов\r\n
+        Параметры:\r\n
+            sock: информация о сокете\r\n
+            n: количество полученных байт\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией\r\n
+        &#34;&#34;&#34;
+        # Функция для получения n байт
+        data = b&#39;&#39;
+        while len(data) &lt; n:
+            packet = sock.recv(n - len(data))
+            if not packet:
+                return None
+            data += packet
+        return data
+
+    def recv_msg(sock):
+        &#34;&#34;&#34;
+        Метод для определения длинны сообщения от клиента\r\n
+        Параметры:\r\n
+            sock: информация о сокете\r\n
+        &#34;&#34;&#34;
+        raw_msglen = recvall(sock, 4)
+        if not raw_msglen:
+            return None
+        msglen = struct.unpack(&#39;&gt;I&#39;, raw_msglen)[0]
+        return recvall(sock, msglen).decode()
+
+    while True:
+        logger.info(&#39;Клиент с адресом&#39; + str(address) + &#39; подключен&#39;)
+        try:
+            client_data = recv_msg(connection)
+        except ConnectionResetError:
+            logger.info(&#39;Клиент с адресом&#39; + str(address) + &#39; отключился&#39;)
+            exit()
+        if not client_data:
+            logger.info(&#39;Клиент с адресом&#39; + str(address) + &#39; отключился&#39;)
+            exit()
+        client_data = json.loads(client_data)
+        new_client_dict = client_data
+        if client_data[&#39;endpoint&#39;] == &#39;cars&#39;:
+            q = client_data[&#39;action&#39;]
+            new_client_dict = cars_dict.get(q)(client_data)
+        if client_data[&#39;endpoint&#39;] == &#39;clients&#39;:
+            q = client_data[&#39;action&#39;]
+            new_client_dict = person_dict.get(q)(client_data)
+        if client_data[&#39;endpoint&#39;] == &#39;orders&#39;:
+            q = client_data[&#39;action&#39;]
+            new_client_dict = contract_dict.get(q)(client_data)
+        client_data = {}
+        new_client_dict = (bytes(json.dumps(new_client_dict, ensure_ascii=False, default=str).encode()))
+        msg = struct.pack(&#39;&gt;I&#39;, len(new_client_dict)) + new_client_dict
+        connection.sendall(msg)
+
+
+def launch_server():  # pragma: no cover
+    &#34;&#34;&#34;Метод для инициализации сокета и ожидания подключения клиента &#34;&#34;&#34;
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # создаем сокет
+    server_socket.bind((config[&#39;address&#39;], config[&#39;port&#39;]))  # определяем адрес и порт
+    server_socket.listen()  # прослушиваем порт от одного клиента
+    logger.info(&#39;Сервер запущен по адресу: &#39; + config[&#39;address&#39;] + &#39;:&#39; + str(config[&#39;port&#39;]))
+    while True:
+        connection, address = server_socket.accept()
+        th = Thread(target=server_thread, args=(connection, address))
+        th.start()
+        logger.info(&#39;Сервер в потоке: &#39; + th.name)
+        logger.info(&#39;Всего потоков: &#39; + str(threading.activeCount() - 1))
+
+
+# Base.metadata.create_all(db_engine)
+# launch_server()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="server.check_500"><code class="name flex">
+<span>def <span class="ident">check_500</span></span>(<span>any_func)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Декоратор для обнаружения каких-либо ошибок на сервере</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_500(any_func):
+    u&#34;&#34;&#34;Декоратор для обнаружения каких-либо ошибок на сервере&#34;&#34;&#34;
+    @wraps(any_func)
+    def checking(data):
+        try:
+            return any_func(data)
+        except:
+            data[&#39;content&#39;] = []
+            data[&#39;status&#39;] = &#39;500&#39;
+            data[&#39;message&#39;] = &#39;Произошла ошибка на сервере&#39;
+            logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+            return data
+
+    return checking</code></pre>
+</details>
+</dd>
+<dt id="server.check_token"><code class="name flex">
+<span>def <span class="ident">check_token</span></span>(<span>any_func)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Декоратор для проверки токена клиента</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_token(any_func):
+    u&#34;&#34;&#34;Декоратор для проверки токена клиента&#34;&#34;&#34;
+    @wraps(any_func)
+    def checking(data):
+        try:
+            tarantool_token = tarantool_space.select(data[&#39;token&#39;]).data[0]
+            time_now = int(datetime.datetime.now().timestamp())
+            last_time_token = time_now - tarantool_token[2]
+            if last_time_token &lt;= config[&#39;ttl&#39;]:
+                if last_time_token &lt;= config[&#39;ttl_update&#39;]:
+                    return any_func(data)
+                else:
+                    tarantool_space.update(data[&#39;token&#39;], [(&#39;=&#39;, 2, time_now)])
+                    return any_func(data)
+            else:
+                tarantool_space.delete((data[&#39;token&#39;]))
+                del data[&#39;token&#39;]
+                data[&#39;content&#39;] = []
+                data[&#39;status&#39;] = &#39;403&#39;
+                data[&#39;message&#39;] = &#39;Время вашего сеанса истекло!&#39; + &#39;\n&#39; + &#39;Авторизируйтесь снова!&#39;
+        except:
+            data[&#39;content&#39;] = []
+            data[&#39;status&#39;] = &#39;403&#39;
+            data[&#39;message&#39;] = &#39;Вы не авторизованы, действие запрещено&#39;
+            logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        return data
+
+    return checking</code></pre>
+</details>
+</dd>
+<dt id="server.dict_to_object"><code class="name flex">
+<span>def <span class="ident">dict_to_object</span></span>(<span>obj, dict)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для преобразования словаря в объект класса</p>
+<p>Параметры:</p>
+<pre><code>obj: объект какого-либо класса
+
+dict: словарь
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dict_to_object(obj, dict):
+    &#34;&#34;&#34;
+    Метод для преобразования словаря в объект класса\r\n
+    Параметры:\r\n
+        obj: объект какого-либо класса\r\n
+        dict: словарь\r\n
+    &#34;&#34;&#34;
+    for x in obj.__table__.columns:
+        if x.name in dict:
+            setattr(obj, x.name, dict[x.name])
+    return obj</code></pre>
+</details>
+</dd>
+<dt id="server.launch_server"><code class="name flex">
+<span>def <span class="ident">launch_server</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для инициализации сокета и ожидания подключения клиента</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def launch_server():  # pragma: no cover
+    &#34;&#34;&#34;Метод для инициализации сокета и ожидания подключения клиента &#34;&#34;&#34;
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # создаем сокет
+    server_socket.bind((config[&#39;address&#39;], config[&#39;port&#39;]))  # определяем адрес и порт
+    server_socket.listen()  # прослушиваем порт от одного клиента
+    logger.info(&#39;Сервер запущен по адресу: &#39; + config[&#39;address&#39;] + &#39;:&#39; + str(config[&#39;port&#39;]))
+    while True:
+        connection, address = server_socket.accept()
+        th = Thread(target=server_thread, args=(connection, address))
+        th.start()
+        logger.info(&#39;Сервер в потоке: &#39; + th.name)
+        logger.info(&#39;Всего потоков: &#39; + str(threading.activeCount() - 1))</code></pre>
+</details>
+</dd>
+<dt id="server.object_to_dict"><code class="name flex">
+<span>def <span class="ident">object_to_dict</span></span>(<span>obj)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для преобразования объекта класса в словарь</p>
+<p>Параметры:</p>
+<pre><code>obj: объект какого-либо класса
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def object_to_dict(obj):
+    &#34;&#34;&#34;
+    Метод для преобразования объекта класса в словарь\r\n
+    Параметры:\r\n
+        obj: объект какого-либо класса\r\n
+    &#34;&#34;&#34;
+    return {x.name: getattr(obj, x.name)
+            for x in obj.__table__.columns}</code></pre>
+</details>
+</dd>
+<dt id="server.server_thread"><code class="name flex">
+<span>def <span class="ident">server_thread</span></span>(<span>connection, address)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для запуска сервера в потоке</p>
+<p>Параметры:</p>
+<pre><code>connection: данные о соединении клиента
+
+address: адресс клиента в сети
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def server_thread(connection, address):  # pragma: no cover
+    &#34;&#34;&#34;
+    Метод для запуска сервера в потоке\r\n
+    Параметры:\r\n
+        connection: данные о соединении клиента\r\n
+        address: адресс клиента в сети\r\n
+    &#34;&#34;&#34;
+    ###########################################################################################################
+    cars_dict = {
+        &#39;get_cars&#39;: Car.get_cars,
+        &#39;get_car&#39;: Car.get_car
+    }
+    person_dict = {
+        &#39;sign_up&#39;: Person.sign_up,
+        &#39;sign_in&#39;: Person.sign_in,
+        &#39;get_client&#39;: Person.get_client,
+        &#39;del_client&#39;: Person.del_client,
+        &#39;edit_pass&#39;: Person.edit_pass,
+        &#39;edit_client&#39;: Person.edit_client,
+        &#39;log_out&#39;: Person.log_out,
+        &#39;add_favorite&#39;: Favorite.add_favorite,
+        &#39;del_favorite&#39;: Favorite.del_favorite,
+        &#39;get_favorites&#39;: Favorite.get_favorites
+    }
+    contract_dict = {
+        &#39;add_order&#39;: Contract.add_order,
+        &#39;get_order&#39;: Contract.get_order,
+        &#39;get_orders&#39;: Contract.get_orders,
+    }
+
+    def recvall(sock, n):
+        &#34;&#34;&#34;
+        Метод для получение данных от клиента в виде байтов\r\n
+        Параметры:\r\n
+            sock: информация о сокете\r\n
+            n: количество полученных байт\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией\r\n
+        &#34;&#34;&#34;
+        # Функция для получения n байт
+        data = b&#39;&#39;
+        while len(data) &lt; n:
+            packet = sock.recv(n - len(data))
+            if not packet:
+                return None
+            data += packet
+        return data
+
+    def recv_msg(sock):
+        &#34;&#34;&#34;
+        Метод для определения длинны сообщения от клиента\r\n
+        Параметры:\r\n
+            sock: информация о сокете\r\n
+        &#34;&#34;&#34;
+        raw_msglen = recvall(sock, 4)
+        if not raw_msglen:
+            return None
+        msglen = struct.unpack(&#39;&gt;I&#39;, raw_msglen)[0]
+        return recvall(sock, msglen).decode()
+
+    while True:
+        logger.info(&#39;Клиент с адресом&#39; + str(address) + &#39; подключен&#39;)
+        try:
+            client_data = recv_msg(connection)
+        except ConnectionResetError:
+            logger.info(&#39;Клиент с адресом&#39; + str(address) + &#39; отключился&#39;)
+            exit()
+        if not client_data:
+            logger.info(&#39;Клиент с адресом&#39; + str(address) + &#39; отключился&#39;)
+            exit()
+        client_data = json.loads(client_data)
+        new_client_dict = client_data
+        if client_data[&#39;endpoint&#39;] == &#39;cars&#39;:
+            q = client_data[&#39;action&#39;]
+            new_client_dict = cars_dict.get(q)(client_data)
+        if client_data[&#39;endpoint&#39;] == &#39;clients&#39;:
+            q = client_data[&#39;action&#39;]
+            new_client_dict = person_dict.get(q)(client_data)
+        if client_data[&#39;endpoint&#39;] == &#39;orders&#39;:
+            q = client_data[&#39;action&#39;]
+            new_client_dict = contract_dict.get(q)(client_data)
+        client_data = {}
+        new_client_dict = (bytes(json.dumps(new_client_dict, ensure_ascii=False, default=str).encode()))
+        msg = struct.pack(&#39;&gt;I&#39;, len(new_client_dict)) + new_client_dict
+        connection.sendall(msg)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="server.Car"><code class="flex name class">
+<span>class <span class="ident">Car</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Класс транспортного средства</p>
+<p>Атрибуты</p>
+<hr>
+<p>Id (Integer): Уникальный идентификатор</p>
+<p>CompanyID (Integer): Уникальный идентификатор компании</p>
+<p>Location (String): Адрес расположения автомобиля</p>
+<p>Photos (String): Путь до фотографий</p>
+<p>RentCondition (String): Условия аренды</p>
+<p>Header (String): Заголовок объявления</p>
+<p>Driver (Boolean): Есть ли водитель у автомобиля</p>
+<p>status (Boolean): Статус автомобиля (скрыто или нет)</p>
+<p>CategoryID (Integer): Уникальный идентификатор категории</p>
+<p>CategoryVU (String): Категория ВУ автомобиля</p>
+<p>DateDel (Date): Дата удаления</p>
+<p>FixedRate (Numeric): Фиксированная комиссия</p>
+<p>Percent (Numeric): Процент комиссии</p>
+<p>Brand_and_name (String):Марка и модель автомобиля</p>
+<p>Transmission (Integer): Тип трансмиссии</p>
+<p>Engine (Integer): Тип двигателя</p>
+<p>Car_type (Integer): Тип кузова</p>
+<p>Drive (Integer): Тип привода</p>
+<p>Wheel_drive (Integer): Положение руля</p>
+<p>Year (Integer): Год выпуска</p>
+<p>Power (Integer): Мощность</p>
+<p>Price (Integer): Стоимость аренды</p>
+<hr>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Car(Base):
+    u&#34;&#34;&#34;
+    Класс транспортного средства
+
+    Атрибуты\r\n
+    ---\r\n
+    Id (Integer): Уникальный идентификатор\r\n
+    CompanyID (Integer): Уникальный идентификатор компании\r\n
+    Location (String): Адрес расположения автомобиля\r\n
+    Photos (String): Путь до фотографий\r\n
+    RentCondition (String): Условия аренды\r\n
+    Header (String): Заголовок объявления\r\n
+    Driver (Boolean): Есть ли водитель у автомобиля\r\n
+    status (Boolean): Статус автомобиля (скрыто или нет)\r\n
+    CategoryID (Integer): Уникальный идентификатор категории\r\n
+    CategoryVU (String): Категория ВУ автомобиля\r\n
+    DateDel (Date): Дата удаления\r\n
+    FixedRate (Numeric): Фиксированная комиссия\r\n
+    Percent (Numeric): Процент комиссии\r\n
+    Brand_and_name (String):Марка и модель автомобиля\r\n
+    Transmission (Integer): Тип трансмиссии\r\n
+    Engine (Integer): Тип двигателя\r\n
+    Car_type (Integer): Тип кузова\r\n
+    Drive (Integer): Тип привода\r\n
+    Wheel_drive (Integer): Положение руля\r\n
+    Year (Integer): Год выпуска\r\n
+    Power (Integer): Мощность\r\n
+    Price (Integer): Стоимость аренды\r\n
+    ---
+    &#34;&#34;&#34;
+    __tablename__ = &#39;Cars&#39;
+
+    Id = Column(Integer, primary_key=True, doc=&#34;Уникальный идентификатор&#34;)  # pk
+    CompanyID = Column(Integer, ForeignKey(&#39;Company.Id&#39;), nullable=False, doc=&#34;Уникальный идентификатор компании&#34;)  # fk
+    Location = Column(String(250), nullable=False, doc=&#34;Адрес расположения автомобиля&#34;)
+    Photos = Column(String, default=&#39;&#39;, doc=&#34;Путь до фотографий&#34;)
+    RentCondition = Column(String, default=&#39;Описание условий аренды&#39;, doc=&#34;Условия аренды&#34;)
+    Header = Column(String, nullable=False, doc=&#34;Заголовок объявления&#34;)
+    Driver = Column(Boolean, nullable=False, doc=&#34;Есть ли водитель у автомобиля&#34;)
+    status = Column(Boolean, nullable=True, doc=&#34;Статус автомобиля (скрыто или нет)&#34;)
+    CategoryID = Column(Integer, ForeignKey(&#39;Category.Id&#39;), nullable=False, doc=&#34;Уникальный идентификатор категории&#34;)  # fk
+    CategoryVU = Column(String, nullable=False, doc=&#34;Категория ВУ автомобиля&#34;)
+    DateDel = Column(Date, nullable=True, doc=&#34;Дата удаления&#34;)
+    FixedRate = Column(Numeric, nullable=True, doc=&#34;Фиксированная комиссия&#34;)
+    Percent = Column(Numeric, nullable=True, doc=&#34;Процент комиссии&#34;)
+
+    car_company = relationship(&#34;Company&#34;, back_populates=&#34;company_cars&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Company&#34;)
+    car_category = relationship(&#34;Category&#34;, back_populates=&#34;category_cars&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Category&#34;)
+    car_contract = relationship(&#34;Contract&#34;, back_populates=&#34;contract_car&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Contract&#34;)
+
+    Brand_and_name = Column(String, nullable=False, doc=&#34;Марка и модель автомобиля&#34;)
+    Transmission = Column(Integer, nullable=True, default=0, doc=&#34;Тип трансмиссии&#34;)
+    Engine = Column(Integer, nullable=True, default=0, doc=&#34;Тип двигателя&#34;)
+    Car_type = Column(Integer, nullable=True, default=0, doc=&#34;Тип кузова&#34;)
+    Drive = Column(Integer, nullable=True, default=0, doc=&#34;Тип привода&#34;)
+    Wheel_drive = Column(Integer, nullable=True, default=0, doc=&#34;Положение руля&#34;)
+    Year = Column(Integer, nullable=False, doc=&#34;Год выпуска&#34;)
+    Power = Column(Integer, nullable=False, doc=&#34;Мощность&#34;)
+    Price = Column(Integer, nullable=False, doc=&#34;Стоимость аренды&#34;)
+
+    @check_500
+    @check_token
+    def get_car(data):
+        &#34;&#34;&#34;
+        Метод для получения информации об автомобиле\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией об автомобиле\r\n
+        &#34;&#34;&#34;
+        car = session.query(Car).filter(Car.Id == int(data[&#39;content&#39;][&#39;Id&#39;]), Car.DateDel == None).first()
+        if car is not None:
+            data[&#39;content&#39;] = [object_to_dict(car)]
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;message&#39;] = &#39;Просмотр ТС c id &#39; + str(data[&#39;content&#39;][0][&#39;Id&#39;])
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;ТС с id &#39; + str(data[&#39;content&#39;][&#39;Id&#39;]) + &#39; не найдено&#39;
+            logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+        return data
+
+    @check_500
+    @check_token
+    def get_cars(data):
+        &#34;&#34;&#34;
+        Метод для получения списка автомобилей определенной категории\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с данными автомобилей определенной категории\r\n
+        &#34;&#34;&#34;
+        category = session.query(Category).get(int(data[&#39;content&#39;][&#39;CategoryID&#39;]))
+        if category == None:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;Категории с id &#39; + str(data[&#39;content&#39;][&#39;CategoryID&#39;]) + &#39; нет&#39;
+            logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            cars = category.category_cars
+            new_cars = []  # [{} {} {}]
+            for car in cars:
+                if car.DateDel == None:
+                    dict = object_to_dict(car)
+                    new_cars.append(dict)
+            if new_cars:
+                data[&#39;status&#39;] = &#39;200&#39;
+                data[&#39;message&#39;] = &#39;Просмотр списка ТС с категорией &#39; + str(data[&#39;content&#39;][&#39;CategoryID&#39;])
+                logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+                data[&#39;content&#39;] = new_cars
+            else:
+                data[&#39;status&#39;] = &#39;404&#39;
+                data[&#39;message&#39;] = &#39;ТС с категорией &#39; + str(data[&#39;content&#39;][&#39;CategoryID&#39;]) + &#39; нет&#39;
+                logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.orm.decl_api.Base</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="server.Car.Brand_and_name"><code class="name">var <span class="ident">Brand_and_name</span></code></dt>
+<dd>
+<div class="desc"><p>Марка и модель автомобиля</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.Car_type"><code class="name">var <span class="ident">Car_type</span></code></dt>
+<dd>
+<div class="desc"><p>Тип кузова</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.CategoryID"><code class="name">var <span class="ident">CategoryID</span></code></dt>
+<dd>
+<div class="desc"><p>Уникальный идентификатор категории</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.CategoryVU"><code class="name">var <span class="ident">CategoryVU</span></code></dt>
+<dd>
+<div class="desc"><p>Категория ВУ автомобиля</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.CompanyID"><code class="name">var <span class="ident">CompanyID</span></code></dt>
+<dd>
+<div class="desc"><p>Уникальный идентификатор компании</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.DateDel"><code class="name">var <span class="ident">DateDel</span></code></dt>
+<dd>
+<div class="desc"><p>Дата удаления</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.Drive"><code class="name">var <span class="ident">Drive</span></code></dt>
+<dd>
+<div class="desc"><p>Тип привода</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.Driver"><code class="name">var <span class="ident">Driver</span></code></dt>
+<dd>
+<div class="desc"><p>Есть ли водитель у автомобиля</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.Engine"><code class="name">var <span class="ident">Engine</span></code></dt>
+<dd>
+<div class="desc"><p>Тип двигателя</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.FixedRate"><code class="name">var <span class="ident">FixedRate</span></code></dt>
+<dd>
+<div class="desc"><p>Фиксированная комиссия</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.Header"><code class="name">var <span class="ident">Header</span></code></dt>
+<dd>
+<div class="desc"><p>Заголовок объявления</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.Id"><code class="name">var <span class="ident">Id</span></code></dt>
+<dd>
+<div class="desc"><p>Уникальный идентификатор</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.Location"><code class="name">var <span class="ident">Location</span></code></dt>
+<dd>
+<div class="desc"><p>Адрес расположения автомобиля</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.Percent"><code class="name">var <span class="ident">Percent</span></code></dt>
+<dd>
+<div class="desc"><p>Процент комиссии</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.Photos"><code class="name">var <span class="ident">Photos</span></code></dt>
+<dd>
+<div class="desc"><p>Путь до фотографий</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.Power"><code class="name">var <span class="ident">Power</span></code></dt>
+<dd>
+<div class="desc"><p>Мощность</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.Price"><code class="name">var <span class="ident">Price</span></code></dt>
+<dd>
+<div class="desc"><p>Стоимость аренды</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.RentCondition"><code class="name">var <span class="ident">RentCondition</span></code></dt>
+<dd>
+<div class="desc"><p>Условия аренды</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.Transmission"><code class="name">var <span class="ident">Transmission</span></code></dt>
+<dd>
+<div class="desc"><p>Тип трансмиссии</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.Wheel_drive"><code class="name">var <span class="ident">Wheel_drive</span></code></dt>
+<dd>
+<div class="desc"><p>Положение руля</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.Year"><code class="name">var <span class="ident">Year</span></code></dt>
+<dd>
+<div class="desc"><p>Год выпуска</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.car_category"><code class="name">var <span class="ident">car_category</span></code></dt>
+<dd>
+<div class="desc"><p>Вспомогательное поле для создания связи с классом Category</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.car_company"><code class="name">var <span class="ident">car_company</span></code></dt>
+<dd>
+<div class="desc"><p>Вспомогательное поле для создания связи с классом Company</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.car_contract"><code class="name">var <span class="ident">car_contract</span></code></dt>
+<dd>
+<div class="desc"><p>Вспомогательное поле для создания связи с классом Contract</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Car.status"><code class="name">var <span class="ident">status</span></code></dt>
+<dd>
+<div class="desc"><p>Статус автомобиля (скрыто или нет)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="server.Car.get_car"><code class="name flex">
+<span>def <span class="ident">get_car</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для получения информации об автомобиле</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь с информацией об автомобиле
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+@check_token
+def get_car(data):
+    &#34;&#34;&#34;
+    Метод для получения информации об автомобиле\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь с информацией об автомобиле\r\n
+    &#34;&#34;&#34;
+    car = session.query(Car).filter(Car.Id == int(data[&#39;content&#39;][&#39;Id&#39;]), Car.DateDel == None).first()
+    if car is not None:
+        data[&#39;content&#39;] = [object_to_dict(car)]
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;message&#39;] = &#39;Просмотр ТС c id &#39; + str(data[&#39;content&#39;][0][&#39;Id&#39;])
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+    else:
+        data[&#39;status&#39;] = &#39;404&#39;
+        data[&#39;message&#39;] = &#39;ТС с id &#39; + str(data[&#39;content&#39;][&#39;Id&#39;]) + &#39; не найдено&#39;
+        logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+    return data</code></pre>
+</details>
+</dd>
+<dt id="server.Car.get_cars"><code class="name flex">
+<span>def <span class="ident">get_cars</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для получения списка автомобилей определенной категории</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь с данными автомобилей определенной категории
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+@check_token
+def get_cars(data):
+    &#34;&#34;&#34;
+    Метод для получения списка автомобилей определенной категории\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь с данными автомобилей определенной категории\r\n
+    &#34;&#34;&#34;
+    category = session.query(Category).get(int(data[&#39;content&#39;][&#39;CategoryID&#39;]))
+    if category == None:
+        data[&#39;status&#39;] = &#39;404&#39;
+        data[&#39;message&#39;] = &#39;Категории с id &#39; + str(data[&#39;content&#39;][&#39;CategoryID&#39;]) + &#39; нет&#39;
+        logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+    else:
+        cars = category.category_cars
+        new_cars = []  # [{} {} {}]
+        for car in cars:
+            if car.DateDel == None:
+                dict = object_to_dict(car)
+                new_cars.append(dict)
+        if new_cars:
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;message&#39;] = &#39;Просмотр списка ТС с категорией &#39; + str(data[&#39;content&#39;][&#39;CategoryID&#39;])
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+            data[&#39;content&#39;] = new_cars
+        else:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;ТС с категорией &#39; + str(data[&#39;content&#39;][&#39;CategoryID&#39;]) + &#39; нет&#39;
+            logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+    return data</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="server.Category"><code class="flex name class">
+<span>class <span class="ident">Category</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Класс категории</p>
+<p>Атрибуты</p>
+<hr>
+<p>Id (Integer): Уникальный идентификатор</p>
+<p>NameCat (String): Название категории</p>
+<p>Icon (String): Путь до иконки</p>
+<p>DateDel (Date): Дата удаления</p>
+<hr>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Category(Base):
+    u&#34;&#34;&#34;
+        Класс категории
+
+        Атрибуты\r\n
+        ---\r\n
+        Id (Integer): Уникальный идентификатор\r\n
+        NameCat (String): Название категории\r\n
+        Icon (String): Путь до иконки\r\n
+        DateDel (Date): Дата удаления\r\n
+        ---
+    &#34;&#34;&#34;
+    __tablename__ = &#39;Category&#39;
+    Id = Column(Integer, primary_key=True, doc=&#34;Уникальный идентификатор&#34;)  # pk
+    NameCat = Column(String, nullable=False, doc=&#34;Название категории&#34;)
+    Icon = Column(String, nullable=True, doc=&#34;Путь до иконки&#34;)
+    DateDel = Column(Date, nullable=True, doc=&#34;Дата удаления&#34;)
+    category_cars = relationship(&#34;Car&#34;, back_populates=&#34;car_category&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Car&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.orm.decl_api.Base</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="server.Category.DateDel"><code class="name">var <span class="ident">DateDel</span></code></dt>
+<dd>
+<div class="desc"><p>Дата удаления</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Category.Icon"><code class="name">var <span class="ident">Icon</span></code></dt>
+<dd>
+<div class="desc"><p>Путь до иконки</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Category.Id"><code class="name">var <span class="ident">Id</span></code></dt>
+<dd>
+<div class="desc"><p>Уникальный идентификатор</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Category.NameCat"><code class="name">var <span class="ident">NameCat</span></code></dt>
+<dd>
+<div class="desc"><p>Название категории</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Category.category_cars"><code class="name">var <span class="ident">category_cars</span></code></dt>
+<dd>
+<div class="desc"><p>Вспомогательное поле для создания связи с классом Car</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="server.Company"><code class="flex name class">
+<span>class <span class="ident">Company</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Класс компании</p>
+<p>Атрибуты</p>
+<hr>
+<p>Id (Integer): Уникальный идентификатор</p>
+<p>Name (String): Название компании</p>
+<p>Phone (String): Телефон</p>
+<p>Email (String): Адрес электронной почты</p>
+<p>Note (String): Комментарий к компании</p>
+<p>DateDel (Date): Дата удаления</p>
+<p>FIOContact (String): ФИО представителя компании</p>
+<p>ContactPhone (String): Телефон представителя компании</p>
+<p>ContactEmail (String): Адрес электронной почты представителя компании</p>
+<hr>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Company(Base):
+    u&#34;&#34;&#34;
+        Класс компании
+
+        Атрибуты\r\n
+        ---\r\n
+        Id (Integer): Уникальный идентификатор\r\n
+        Name (String): Название компании\r\n
+        Phone (String): Телефон\r\n
+        Email (String): Адрес электронной почты\r\n
+        Note (String): Комментарий к компании\r\n
+        DateDel (Date): Дата удаления\r\n
+        FIOContact (String): ФИО представителя компании\r\n
+        ContactPhone (String): Телефон представителя компании\r\n
+        ContactEmail (String): Адрес электронной почты представителя компании\r\n
+        ---
+    &#34;&#34;&#34;
+    __tablename__ = &#39;Company&#39;
+    Id = Column(Integer, primary_key=True, doc=&#34;Уникальный идентификатор&#34;)  # pk
+    Name = Column(String, nullable=False, doc=&#34;Название компании&#34;)
+    Phone = Column(String, nullable=False, doc=&#34;Телефон&#34;)
+    Email = Column(String, nullable=True, doc=&#34;Адрес электронной почты&#34;)
+    Note = Column(String, nullable=True, doc=&#34;Комментарий к компании&#34;)
+    DateDel = Column(Date, nullable=True, doc=&#34;Дата удаления&#34;)
+    FIOContact = Column(String, nullable=False, doc=&#34;ФИО представителя компании&#34;)
+    ContactPhone = Column(String, nullable=False, doc=&#34;Телефон представителя компании&#34;)
+    ContactEmail = Column(String, nullable=True, doc=&#34;Адрес электронной почты представителя компании&#34;)
+    company_cars = relationship(&#34;Car&#34;, back_populates=&#34;car_company&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Car&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.orm.decl_api.Base</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="server.Company.ContactEmail"><code class="name">var <span class="ident">ContactEmail</span></code></dt>
+<dd>
+<div class="desc"><p>Адрес электронной почты представителя компании</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Company.ContactPhone"><code class="name">var <span class="ident">ContactPhone</span></code></dt>
+<dd>
+<div class="desc"><p>Телефон представителя компании</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Company.DateDel"><code class="name">var <span class="ident">DateDel</span></code></dt>
+<dd>
+<div class="desc"><p>Дата удаления</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Company.Email"><code class="name">var <span class="ident">Email</span></code></dt>
+<dd>
+<div class="desc"><p>Адрес электронной почты</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Company.FIOContact"><code class="name">var <span class="ident">FIOContact</span></code></dt>
+<dd>
+<div class="desc"><p>ФИО представителя компании</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Company.Id"><code class="name">var <span class="ident">Id</span></code></dt>
+<dd>
+<div class="desc"><p>Уникальный идентификатор</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Company.Name"><code class="name">var <span class="ident">Name</span></code></dt>
+<dd>
+<div class="desc"><p>Название компании</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Company.Note"><code class="name">var <span class="ident">Note</span></code></dt>
+<dd>
+<div class="desc"><p>Комментарий к компании</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Company.Phone"><code class="name">var <span class="ident">Phone</span></code></dt>
+<dd>
+<div class="desc"><p>Телефон</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Company.company_cars"><code class="name">var <span class="ident">company_cars</span></code></dt>
+<dd>
+<div class="desc"><p>Вспомогательное поле для создания связи с классом Car</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="server.Contract"><code class="flex name class">
+<span>class <span class="ident">Contract</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Класс договора</p>
+<p>Атрибуты</p>
+<hr>
+<p>Id (Integer): Уникальный идентификатор</p>
+<p>ClientId (Integer): Уникальный идентификатор клиента</p>
+<p>CarId (Integer): Уникальный идентификатор автомобиля</p>
+<p>DateStartContract (Date): Дата начала аренды</p>
+<p>DateEndContract (Date): Дата окончания аренды</p>
+<p>Driver (Boolean): Требуется ли водитель для аренды</p>
+<p>Note (String): Комментарий к заявке</p>
+<p>Status (Integer): Статус заявки (Активна, завершена, отменена)</p>
+<p>Comission (Numeric): Комиссия с заявки</p>
+<p>Cost (Integer): Стоимость аренды</p>
+<p>DateDel (Date): Дата удаления</p>
+<hr>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Contract(Base):
+    u&#34;&#34;&#34;
+        Класс договора
+
+        Атрибуты\r\n
+        ---\r\n
+        Id (Integer): Уникальный идентификатор\r\n
+        ClientId (Integer): Уникальный идентификатор клиента\r\n
+        CarId (Integer): Уникальный идентификатор автомобиля\r\n
+        DateStartContract (Date): Дата начала аренды\r\n
+        DateEndContract (Date): Дата окончания аренды\r\n
+        Driver (Boolean): Требуется ли водитель для аренды\r\n
+        Note (String): Комментарий к заявке\r\n
+        Status (Integer): Статус заявки (Активна, завершена, отменена)\r\n
+        Comission (Numeric): Комиссия с заявки\r\n
+        Cost (Integer): Стоимость аренды\r\n
+        DateDel (Date): Дата удаления\r\n
+        ---
+    &#34;&#34;&#34;
+    __tablename__ = &#39;Contract&#39;
+    Id = Column(Integer, primary_key=True, doc=&#34;Уникальный идентификатор&#34;)  # pk
+    ClientId = Column(Integer, ForeignKey(&#39;Person.Id&#39;), nullable=False, doc=&#34;Уникальный идентификатор клиента&#34;)  # fk
+    CarId = Column(Integer, ForeignKey(&#39;Cars.Id&#39;), nullable=False, doc=&#34;Уникальный идентификатор автомобиля&#34;)  # fk
+    DateStartContract = Column(Date, nullable=False, doc=&#34;Дата начала аренды&#34;)
+    DateEndContract = Column(Date, nullable=False, doc=&#34;Дата окончания аренды&#34;)
+    Driver = Column(Boolean, nullable=False, doc=&#34;Требуется ли водитель для аренды&#34;)
+    Note = Column(String, nullable=True, doc=&#34;Комментарий к заявке&#34;)
+    Status = Column(Integer, nullable=False, doc=&#34;Статус заявки (Активна, завершена, отменена)&#34;)
+    Comission = Column(Numeric, nullable=False, doc=&#34;Комиссия с заявки&#34;)
+    Cost = Column(Integer, nullable=False, doc=&#34;Стоимость аренды&#34;)
+    DateDel = Column(Date, nullable=True, doc=&#34;Дата удаления&#34;)
+    contract_client = relationship(&#34;Person&#34;, back_populates=&#34;client_contracts&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Person&#34;)
+    contract_car = relationship(&#34;Car&#34;, back_populates=&#34;car_contract&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Car&#34;)
+
+    @check_500
+    @check_token
+    def add_order(data):
+        &#34;&#34;&#34;
+        Метод для для добавления договора\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией о создании договора или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        car = session.query(Car).filter(Car.Id == data[&#39;content&#39;][&#39;CarId&#39;], Car.DateDel == None).first()
+        if car is not None:
+            start = datetime.datetime.strptime(data[&#39;content&#39;][&#39;DateStartContract&#39;], &#34;%d-%m-%Y&#34;)
+            end = datetime.datetime.strptime(data[&#39;content&#39;][&#39;DateEndContract&#39;], &#34;%d-%m-%Y&#34;)
+            rez = (end - start).days
+            cost = rez * car.Price
+            car_per = car.Percent
+            car_fix = car.FixedRate
+            per1 = car_per * decimal.Decimal(0.01)
+            per2 = round((per1 * decimal.Decimal(cost)) + car_fix, 2)
+
+            contract = Contract(**data[&#39;content&#39;])
+            contract.DateStartContract = datetime.datetime.strptime(data[&#39;content&#39;][&#39;DateStartContract&#39;],
+                                                                    &#34;%d-%m-%Y&#34;)
+            contract.DateEndContract = datetime.datetime.strptime(data[&#39;content&#39;][&#39;DateEndContract&#39;], &#34;%d-%m-%Y&#34;)
+            contract.ClientId = man.Id
+            contract.CarId = car.Id
+            contract.Cost = cost
+            contract.Comission = per2
+            contract.Driver = False
+            contract.Status = 0
+            session.add(contract)
+            session.commit()
+            data[&#39;content&#39;] = []
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;message&#39;] = &#39;Заявка добавлена! Id заявки: &#39; + str(contract.Id)
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;500&#39;
+            data[&#39;message&#39;] = &#39;Автомобиль не найден!&#39;
+            logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def get_order(data):
+        &#34;&#34;&#34;
+        Метод для для получение информации договора\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией договоре или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        contract = session.query(Contract).filter(Contract.Id == int(data[&#39;content&#39;][&#39;Id&#39;]),
+                                                  Contract.DateDel == None).first()
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        l = list(filter(lambda x: x.Id == int(data[&#39;content&#39;][&#39;Id&#39;]), man.client_contracts))
+        contract = l[0] if l != [] else None
+        if contract is not None:
+            data[&#39;content&#39;] = [object_to_dict(contract)]
+            c = contract.contract_car.Id
+            data[&#39;content&#39;][0][&#39;CarId&#39;] = contract.contract_car.Brand_and_name + &#39;: id &#39; + str(
+                contract.contract_car.Id)
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;message&#39;] = &#39;Просмотр заявки c id &#39; + str(data[&#39;content&#39;][0][&#39;Id&#39;])
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;Заявка с id &#39; + str(data[&#39;content&#39;][&#39;Id&#39;]) + &#39; не найдена&#39;
+            logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def get_orders(data):
+        &#34;&#34;&#34;
+        Метод для для получения списка договоров\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь со списком договоров или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        list_contract = list(man.client_contracts)
+        contracts = []
+        for o in list_contract:
+            object = object_to_dict(o)
+            c = o.contract_car
+            object[&#39;CarId&#39;] = c.Brand_and_name + &#39;: id &#39; + str(c.Id)
+            contracts.append(object)
+        if contracts:
+            data[&#39;content&#39;] = contracts
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;message&#39;] = &#39;Просмотр заявок клиента с id &#39; + str(man.Id)
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;Заявок у клиента с id &#39; + str(man.Id) + &#39; нет!&#39;
+            logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+        return data</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.orm.decl_api.Base</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="server.Contract.CarId"><code class="name">var <span class="ident">CarId</span></code></dt>
+<dd>
+<div class="desc"><p>Уникальный идентификатор автомобиля</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Contract.ClientId"><code class="name">var <span class="ident">ClientId</span></code></dt>
+<dd>
+<div class="desc"><p>Уникальный идентификатор клиента</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Contract.Comission"><code class="name">var <span class="ident">Comission</span></code></dt>
+<dd>
+<div class="desc"><p>Комиссия с заявки</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Contract.Cost"><code class="name">var <span class="ident">Cost</span></code></dt>
+<dd>
+<div class="desc"><p>Стоимость аренды</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Contract.DateDel"><code class="name">var <span class="ident">DateDel</span></code></dt>
+<dd>
+<div class="desc"><p>Дата удаления</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Contract.DateEndContract"><code class="name">var <span class="ident">DateEndContract</span></code></dt>
+<dd>
+<div class="desc"><p>Дата окончания аренды</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Contract.DateStartContract"><code class="name">var <span class="ident">DateStartContract</span></code></dt>
+<dd>
+<div class="desc"><p>Дата начала аренды</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Contract.Driver"><code class="name">var <span class="ident">Driver</span></code></dt>
+<dd>
+<div class="desc"><p>Требуется ли водитель для аренды</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Contract.Id"><code class="name">var <span class="ident">Id</span></code></dt>
+<dd>
+<div class="desc"><p>Уникальный идентификатор</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Contract.Note"><code class="name">var <span class="ident">Note</span></code></dt>
+<dd>
+<div class="desc"><p>Комментарий к заявке</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Contract.Status"><code class="name">var <span class="ident">Status</span></code></dt>
+<dd>
+<div class="desc"><p>Статус заявки (Активна, завершена, отменена)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Contract.contract_car"><code class="name">var <span class="ident">contract_car</span></code></dt>
+<dd>
+<div class="desc"><p>Вспомогательное поле для создания связи с классом Car</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Contract.contract_client"><code class="name">var <span class="ident">contract_client</span></code></dt>
+<dd>
+<div class="desc"><p>Вспомогательное поле для создания связи с классом Person</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="server.Contract.add_order"><code class="name flex">
+<span>def <span class="ident">add_order</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для для добавления договора</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь с информацией о создании договора или сообщение об ошибке
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+@check_token
+def add_order(data):
+    &#34;&#34;&#34;
+    Метод для для добавления договора\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь с информацией о создании договора или сообщение об ошибке\r\n
+    &#34;&#34;&#34;
+    man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+    car = session.query(Car).filter(Car.Id == data[&#39;content&#39;][&#39;CarId&#39;], Car.DateDel == None).first()
+    if car is not None:
+        start = datetime.datetime.strptime(data[&#39;content&#39;][&#39;DateStartContract&#39;], &#34;%d-%m-%Y&#34;)
+        end = datetime.datetime.strptime(data[&#39;content&#39;][&#39;DateEndContract&#39;], &#34;%d-%m-%Y&#34;)
+        rez = (end - start).days
+        cost = rez * car.Price
+        car_per = car.Percent
+        car_fix = car.FixedRate
+        per1 = car_per * decimal.Decimal(0.01)
+        per2 = round((per1 * decimal.Decimal(cost)) + car_fix, 2)
+
+        contract = Contract(**data[&#39;content&#39;])
+        contract.DateStartContract = datetime.datetime.strptime(data[&#39;content&#39;][&#39;DateStartContract&#39;],
+                                                                &#34;%d-%m-%Y&#34;)
+        contract.DateEndContract = datetime.datetime.strptime(data[&#39;content&#39;][&#39;DateEndContract&#39;], &#34;%d-%m-%Y&#34;)
+        contract.ClientId = man.Id
+        contract.CarId = car.Id
+        contract.Cost = cost
+        contract.Comission = per2
+        contract.Driver = False
+        contract.Status = 0
+        session.add(contract)
+        session.commit()
+        data[&#39;content&#39;] = []
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;message&#39;] = &#39;Заявка добавлена! Id заявки: &#39; + str(contract.Id)
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+    else:
+        data[&#39;status&#39;] = &#39;500&#39;
+        data[&#39;message&#39;] = &#39;Автомобиль не найден!&#39;
+        logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="server.Contract.get_order"><code class="name flex">
+<span>def <span class="ident">get_order</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для для получение информации договора</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь с информацией договоре или сообщение об ошибке
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+@check_token
+def get_order(data):
+    &#34;&#34;&#34;
+    Метод для для получение информации договора\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь с информацией договоре или сообщение об ошибке\r\n
+    &#34;&#34;&#34;
+    contract = session.query(Contract).filter(Contract.Id == int(data[&#39;content&#39;][&#39;Id&#39;]),
+                                              Contract.DateDel == None).first()
+    man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+    l = list(filter(lambda x: x.Id == int(data[&#39;content&#39;][&#39;Id&#39;]), man.client_contracts))
+    contract = l[0] if l != [] else None
+    if contract is not None:
+        data[&#39;content&#39;] = [object_to_dict(contract)]
+        c = contract.contract_car.Id
+        data[&#39;content&#39;][0][&#39;CarId&#39;] = contract.contract_car.Brand_and_name + &#39;: id &#39; + str(
+            contract.contract_car.Id)
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;message&#39;] = &#39;Просмотр заявки c id &#39; + str(data[&#39;content&#39;][0][&#39;Id&#39;])
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+    else:
+        data[&#39;status&#39;] = &#39;404&#39;
+        data[&#39;message&#39;] = &#39;Заявка с id &#39; + str(data[&#39;content&#39;][&#39;Id&#39;]) + &#39; не найдена&#39;
+        logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="server.Contract.get_orders"><code class="name flex">
+<span>def <span class="ident">get_orders</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для для получения списка договоров</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь со списком договоров или сообщение об ошибке
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+@check_token
+def get_orders(data):
+    &#34;&#34;&#34;
+    Метод для для получения списка договоров\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь со списком договоров или сообщение об ошибке\r\n
+    &#34;&#34;&#34;
+    man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+    list_contract = list(man.client_contracts)
+    contracts = []
+    for o in list_contract:
+        object = object_to_dict(o)
+        c = o.contract_car
+        object[&#39;CarId&#39;] = c.Brand_and_name + &#39;: id &#39; + str(c.Id)
+        contracts.append(object)
+    if contracts:
+        data[&#39;content&#39;] = contracts
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;message&#39;] = &#39;Просмотр заявок клиента с id &#39; + str(man.Id)
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+    else:
+        data[&#39;status&#39;] = &#39;404&#39;
+        data[&#39;message&#39;] = &#39;Заявок у клиента с id &#39; + str(man.Id) + &#39; нет!&#39;
+        logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+    return data</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="server.Favorite"><code class="flex name class">
+<span>class <span class="ident">Favorite</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Класс договора</p>
+<p>Атрибуты</p>
+<hr>
+<p>Id (Integer): Уникальный идентификатор</p>
+<p>ClientId (Integer): Уникальный идентификатор клиента</p>
+<p>CarId (Integer): Уникальный идентификатор автомобиля</p>
+<p>Date_add (Date): Дата добавления в избранное</p>
+<p>DateDel (Date): Дата удаления</p>
+<hr>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Favorite(Base):
+    u&#34;&#34;&#34;
+        Класс договора
+
+        Атрибуты\r\n
+        ---\r\n
+        Id (Integer): Уникальный идентификатор\r\n
+        ClientId (Integer): Уникальный идентификатор клиента\r\n
+        CarId (Integer): Уникальный идентификатор автомобиля\r\n
+        Date_add (Date): Дата добавления в избранное\r\n
+        DateDel (Date): Дата удаления\r\n
+        ---
+    &#34;&#34;&#34;
+    __tablename__ = &#39;Favorites&#39;
+    Id = Column(Integer, primary_key=True, doc=&#34;Уникальный идентификатор&#34;)  # pk
+    ClientId = Column(Integer, ForeignKey(&#39;Person.Id&#39;), nullable=False, doc=&#34;Уникальный идентификатор клиента&#34;)  # fk
+    CarId = Column(Integer, ForeignKey(&#39;Cars.Id&#39;), nullable=False, doc=&#34;Уникальный идентификатор автомобиля&#34;)  # fk
+    Date_add = Column(Date, nullable=True, doc=&#34;Дата добавления в избранное&#34;)
+    DateDel = Column(Date, nullable=True, doc=&#34;Дата удаления&#34;)
+
+    @check_500
+    @check_token
+    def add_favorite(data):
+        &#34;&#34;&#34;
+        Метод для для добавления автомобиля в избранное клиента\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией о добавлении автомобиля в избранное или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        car = session.query(Car).filter(Car.Id == data[&#39;content&#39;][&#39;CarId&#39;], Car.DateDel == None).first()
+        if car is not None:
+            if car not in man.favorites:
+                fav = Favorite()
+                fav.CarId = car.Id
+                fav.ClientId = man.Id
+                fav.Date_add = datetime.date.today()
+                session.add(fav)
+                session.commit()
+                data[&#39;content&#39;] = []
+                data[&#39;status&#39;] = &#39;200&#39;
+                data[&#39;message&#39;] = &#39;Авто добавлено в избранное! Id авто: &#39; + str(car.Id)
+                logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+            else:
+                data[&#39;status&#39;] = &#39;500&#39;
+                data[&#39;message&#39;] = &#39;Авто с id &#39; + str(car.Id) + &#39; уже добавлено в избранное!&#39;
+                logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;500&#39;
+            data[&#39;message&#39;] = &#39;Автомобиль не найден!&#39;
+            logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def del_favorite(data):
+        &#34;&#34;&#34;
+        Метод для для удаления автомобиля из списка избранного клиента\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией об удалении автомобиля из списка избранного клиента или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        fav = session.query(Favorite).filter(Favorite.ClientId == man.Id,
+                                             Favorite.CarId == data[&#39;content&#39;][&#39;CarId&#39;]).first()
+        if fav is not None:
+            session.delete(fav)
+            session.commit()
+            data[&#39;content&#39;] = []
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;message&#39;] = &#39;ТС с id &#39; + str(fav.CarId) + &#39; удалено из избранного&#39;
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;ТС с id &#39; + str(data[&#39;content&#39;][&#39;CarId&#39;]) + &#39; не найдено в избранном&#39;
+            logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def get_favorites(data):
+        &#34;&#34;&#34;
+        Метод для для получения списка автомобилей из избранного\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь со спиком автомобилей или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        list_favorites = list(man.favorites)
+        favorites = []
+        for o in list_favorites:
+            object = {}
+            object[&#39;CarId&#39;] = o.Brand_and_name + &#39;: id &#39; + str(o.Id)
+            favorites.append(object)
+        if favorites:
+            data[&#39;content&#39;] = favorites
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;message&#39;] = &#39;Просмотр списка избранного клиента с id &#39; + str(man.Id)
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;Список избранного у клиента с id &#39; + str(man.Id) + &#39; пуст!&#39;
+            logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+        return data</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.orm.decl_api.Base</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="server.Favorite.CarId"><code class="name">var <span class="ident">CarId</span></code></dt>
+<dd>
+<div class="desc"><p>Уникальный идентификатор автомобиля</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Favorite.ClientId"><code class="name">var <span class="ident">ClientId</span></code></dt>
+<dd>
+<div class="desc"><p>Уникальный идентификатор клиента</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Favorite.DateDel"><code class="name">var <span class="ident">DateDel</span></code></dt>
+<dd>
+<div class="desc"><p>Дата удаления</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Favorite.Date_add"><code class="name">var <span class="ident">Date_add</span></code></dt>
+<dd>
+<div class="desc"><p>Дата добавления в избранное</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Favorite.Id"><code class="name">var <span class="ident">Id</span></code></dt>
+<dd>
+<div class="desc"><p>Уникальный идентификатор</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="server.Favorite.add_favorite"><code class="name flex">
+<span>def <span class="ident">add_favorite</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для для добавления автомобиля в избранное клиента</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь с информацией о добавлении автомобиля в избранное или сообщение об ошибке
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+@check_token
+def add_favorite(data):
+    &#34;&#34;&#34;
+    Метод для для добавления автомобиля в избранное клиента\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь с информацией о добавлении автомобиля в избранное или сообщение об ошибке\r\n
+    &#34;&#34;&#34;
+    man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+    car = session.query(Car).filter(Car.Id == data[&#39;content&#39;][&#39;CarId&#39;], Car.DateDel == None).first()
+    if car is not None:
+        if car not in man.favorites:
+            fav = Favorite()
+            fav.CarId = car.Id
+            fav.ClientId = man.Id
+            fav.Date_add = datetime.date.today()
+            session.add(fav)
+            session.commit()
+            data[&#39;content&#39;] = []
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;message&#39;] = &#39;Авто добавлено в избранное! Id авто: &#39; + str(car.Id)
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;500&#39;
+            data[&#39;message&#39;] = &#39;Авто с id &#39; + str(car.Id) + &#39; уже добавлено в избранное!&#39;
+            logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+    else:
+        data[&#39;status&#39;] = &#39;500&#39;
+        data[&#39;message&#39;] = &#39;Автомобиль не найден!&#39;
+        logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="server.Favorite.del_favorite"><code class="name flex">
+<span>def <span class="ident">del_favorite</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для для удаления автомобиля из списка избранного клиента</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь с информацией об удалении автомобиля из списка избранного клиента или сообщение об ошибке
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+@check_token
+def del_favorite(data):
+    &#34;&#34;&#34;
+    Метод для для удаления автомобиля из списка избранного клиента\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь с информацией об удалении автомобиля из списка избранного клиента или сообщение об ошибке\r\n
+    &#34;&#34;&#34;
+    man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+    fav = session.query(Favorite).filter(Favorite.ClientId == man.Id,
+                                         Favorite.CarId == data[&#39;content&#39;][&#39;CarId&#39;]).first()
+    if fav is not None:
+        session.delete(fav)
+        session.commit()
+        data[&#39;content&#39;] = []
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;message&#39;] = &#39;ТС с id &#39; + str(fav.CarId) + &#39; удалено из избранного&#39;
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+    else:
+        data[&#39;status&#39;] = &#39;404&#39;
+        data[&#39;message&#39;] = &#39;ТС с id &#39; + str(data[&#39;content&#39;][&#39;CarId&#39;]) + &#39; не найдено в избранном&#39;
+        logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="server.Favorite.get_favorites"><code class="name flex">
+<span>def <span class="ident">get_favorites</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для для получения списка автомобилей из избранного</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь со спиком автомобилей или сообщение об ошибке
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+@check_token
+def get_favorites(data):
+    &#34;&#34;&#34;
+    Метод для для получения списка автомобилей из избранного\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь со спиком автомобилей или сообщение об ошибке\r\n
+    &#34;&#34;&#34;
+    man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+    list_favorites = list(man.favorites)
+    favorites = []
+    for o in list_favorites:
+        object = {}
+        object[&#39;CarId&#39;] = o.Brand_and_name + &#39;: id &#39; + str(o.Id)
+        favorites.append(object)
+    if favorites:
+        data[&#39;content&#39;] = favorites
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;message&#39;] = &#39;Просмотр списка избранного клиента с id &#39; + str(man.Id)
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+    else:
+        data[&#39;status&#39;] = &#39;404&#39;
+        data[&#39;message&#39;] = &#39;Список избранного у клиента с id &#39; + str(man.Id) + &#39; пуст!&#39;
+        logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+    return data</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="server.Person"><code class="flex name class">
+<span>class <span class="ident">Person</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Класс клиента</p>
+<p>Атрибуты</p>
+<hr>
+<p>Id (Integer): Уникальный идентификатор</p>
+<p>CompanyID (Integer): Уникальный идентификатор компании</p>
+<p>Name (String): Имя</p>
+<p>Surname (String): Фамилия</p>
+<p>Birthday (Date): Дата рождения</p>
+<p>Phone (String): Телефон</p>
+<p>Password (String): Пароль</p>
+<p>Token (String): Токен</p>
+<p>Email (String): Адрес электронной почты</p>
+<p>Position (Integer): Статус пользователя (Клиент, сотрудник, администратор)</p>
+<p>Comment (String): Комментарий к клиенту</p>
+<p>CategoryVuID (String): Категории ВУ</p>
+<p>NumVU (String): Номер ВУ</p>
+<p>DateDel (Date): Дата удаления</p>
+<hr>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Person(Base):
+    u&#34;&#34;&#34;
+        Класс клиента
+
+        Атрибуты\r\n
+        ---\r\n
+        Id (Integer): Уникальный идентификатор\r\n
+        CompanyID (Integer): Уникальный идентификатор компании\r\n
+        Name (String): Имя\r\n
+        Surname (String): Фамилия\r\n
+        Birthday (Date): Дата рождения\r\n
+        Phone (String): Телефон\r\n
+        Password (String): Пароль\r\n
+        Token (String): Токен\r\n
+        Email (String): Адрес электронной почты\r\n
+        Position (Integer): Статус пользователя (Клиент, сотрудник, администратор)\r\n
+        Comment (String): Комментарий к клиенту\r\n
+        CategoryVuID (String): Категории ВУ\r\n
+        NumVU (String): Номер ВУ\r\n
+        DateDel (Date): Дата удаления\r\n
+        ---
+        &#34;&#34;&#34;
+    __tablename__ = &#39;Person&#39;
+    Id = Column(Integer, primary_key=True, doc=&#34;Уникальный идентификатор&#34;)  # pk
+    CompanyID = Column(Integer, nullable=True, default=0, doc=&#34;Уникальный идентификатор компании&#34;)  # fk
+    Name = Column(String, nullable=False, doc=&#34;Имя&#34;)
+    Surname = Column(String, nullable=False, doc=&#34;Фамилия&#34;)
+    Birthday = Column(Date, nullable=True, doc=&#34;Дата рождения&#34;)
+    Phone = Column(String, nullable=False, doc=&#34;Телефон&#34;)
+    Password = Column(String, nullable=False, doc=&#34;Пароль&#34;)
+    Token = Column(String, nullable=False, doc=&#34;Токен&#34;)
+    Email = Column(String, nullable=True, doc=&#34;Адрес электронной почты&#34;)
+    Position = Column(Integer, nullable=True, doc=&#34;Статус пользователя (Клиент, сотрудник, администратор)&#34;)
+    Comment = Column(String, nullable=True, doc=&#34;Комментарий к клиенту&#34;)
+    CategoryVuID = Column(String, nullable=False, doc=&#34;Категории ВУ&#34;)
+    NumVU = Column(String, nullable=False, doc=&#34;Номер ВУ&#34;)
+    DateDel = Column(Date, nullable=True, doc=&#34;Дата удаления&#34;)
+
+    client_contracts = relationship(&#34;Contract&#34;, back_populates=&#34;contract_client&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Contract&#34;)
+    favorites = relationship(&#34;Car&#34;, secondary=&#34;Favorites&#34;, doc=&#34;Вспомогательное поле для создания связи с классом Favorite&#34;)
+
+    @check_500
+    def sign_up(data):
+        &#34;&#34;&#34;
+        Метод для регистрации клиента в системе\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией о регистрации или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Phone == data[&#39;content&#39;][&#39;Phone&#39;], Person.DateDel == None).first()
+        if man is None:
+            salted = hashlib.sha256(data[&#39;content&#39;][&#39;Password&#39;].encode() + salt.encode()).hexdigest()
+            data[&#39;content&#39;][&#39;Password&#39;] = salted
+            person = Person(**data[&#39;content&#39;])
+            person.Birthday = datetime.datetime.strptime(data[&#39;content&#39;][&#39;Birthday&#39;], &#34;%d-%m-%Y&#34;)
+            person.DateDel = None
+            person.CompanyID = None
+            person.Position = 0
+            person.Comment = &#39;Я клиент&#39;
+            person.Token = uuid.uuid4().hex
+            session.add(person)
+            session.commit()
+            tarantool_space.insert(
+                (person.Token, person.Id, int(datetime.datetime.now().timestamp())))
+            data = {}
+            data[&#39;token&#39;] = person.Token
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;content&#39;] = []
+            data[&#39;message&#39;] = &#39;Вы успешно зарегистрировались! Ваш Id: &#39; + str(person.Id)
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;500&#39;
+            data[&#39;message&#39;] = &#39;Пользователь с таким телефоном уже зарегистрирован!&#39;
+            logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        return data
+
+    @check_500
+    def sign_in(data):
+        &#34;&#34;&#34;
+        Метод для автоизации клиента в системе\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией об авторизации или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        salted = hashlib.sha256(data[&#39;content&#39;][&#39;Password&#39;].encode() + salt.encode()).hexdigest()
+        man = session.query(Person).filter(Person.Phone == data[&#39;content&#39;][&#39;Phone&#39;], Person.Password == salted,
+                                           Person.DateDel == None).first()
+        if man is not None:
+            data[&#39;content&#39;] = []
+            data[&#39;status&#39;] = &#39;200&#39;
+            data[&#39;token&#39;] = man.Token = uuid.uuid4().hex
+            session.add(man)
+            session.commit()
+            tarantool_space.insert(
+                (man.Token, man.Id, int(datetime.datetime.now().timestamp())))
+            data[&#39;message&#39;] = &#39;Вы авторизовались. &#39; + &#39;Ваш id: &#39; + str(man.Id)
+            logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+        else:
+            data[&#39;status&#39;] = &#39;404&#39;
+            data[&#39;message&#39;] = &#39;Неверный телефон или пароль. Попробуйте снова. &#39;
+            logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def get_client(data):
+        &#34;&#34;&#34;
+        Метод для получении личных данных клиента\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с личной информацией клиента или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        data[&#39;content&#39;] = [object_to_dict(man)]
+        del (data[&#39;content&#39;][0][&#39;Password&#39;])
+        del (data[&#39;content&#39;][0][&#39;Token&#39;])
+        data[&#39;token&#39;] = man.Token
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;message&#39;] = &#39;Данные клиента с id &#39; + str(man.Id)
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def del_client(data):
+        &#34;&#34;&#34;
+        Метод для удаления клиента из системы\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией об удалении или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        man.DateDel = datetime.date.today()
+        session.add(man)
+        session.commit()
+        data[&#39;content&#39;] = []
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;message&#39;] = &#39;Аккаунт с id &#39; + str(man.Id) + &#39; удален&#39;
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def edit_pass(data):
+        &#34;&#34;&#34;
+        Метод для смены пароля клиента\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией о смене пароля или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        salted = hashlib.sha256(data[&#39;content&#39;][&#39;Password&#39;].encode() + salt.encode()).hexdigest()
+        man.Password = salted
+        session.add(man)
+        session.commit()
+        data[&#39;content&#39;] = []
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;token&#39;] = man.Token
+        data[&#39;message&#39;] = &#39;Пароль изменен! Ваш Id: &#39; + str(man.Id)
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def edit_client(data):
+        &#34;&#34;&#34;
+        Метод для редактирования личных данных клиента\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией об успешном редактировании или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+        man = dict_to_object(man, data[&#39;content&#39;])
+        man.Birthday = datetime.datetime.strptime(data[&#39;content&#39;][&#39;Birthday&#39;], &#34;%d-%m-%Y&#34;)
+        session.add(man)
+        session.commit()
+        data[&#39;content&#39;] = []
+        data[&#39;token&#39;] = man.Token
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;message&#39;] = &#39;Данные вашего аккаунта измнены! Ваш Id: &#39; + str(man.Id)
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data
+
+    @check_500
+    @check_token
+    def log_out(data):
+        &#34;&#34;&#34;
+        Метод для выхода клиента из системы\r\n
+        Параметры:\r\n
+            data: словарь с информацией полученной от клиента\r\n
+        Возвращаемое значение:\r\n
+            data: словарь с информацией о выходе из системы или сообщение об ошибке\r\n
+        &#34;&#34;&#34;
+        tarantool_space.delete((data[&#39;token&#39;]))
+        data = {}
+        data[&#39;content&#39;] = []
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;message&#39;] = &#39;Вы вышли из аккаунта!&#39;
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+        return data</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.orm.decl_api.Base</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="server.Person.Birthday"><code class="name">var <span class="ident">Birthday</span></code></dt>
+<dd>
+<div class="desc"><p>Дата рождения</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.CategoryVuID"><code class="name">var <span class="ident">CategoryVuID</span></code></dt>
+<dd>
+<div class="desc"><p>Категории ВУ</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.Comment"><code class="name">var <span class="ident">Comment</span></code></dt>
+<dd>
+<div class="desc"><p>Комментарий к клиенту</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.CompanyID"><code class="name">var <span class="ident">CompanyID</span></code></dt>
+<dd>
+<div class="desc"><p>Уникальный идентификатор компании</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.DateDel"><code class="name">var <span class="ident">DateDel</span></code></dt>
+<dd>
+<div class="desc"><p>Дата удаления</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.Email"><code class="name">var <span class="ident">Email</span></code></dt>
+<dd>
+<div class="desc"><p>Адрес электронной почты</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.Id"><code class="name">var <span class="ident">Id</span></code></dt>
+<dd>
+<div class="desc"><p>Уникальный идентификатор</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.Name"><code class="name">var <span class="ident">Name</span></code></dt>
+<dd>
+<div class="desc"><p>Имя</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.NumVU"><code class="name">var <span class="ident">NumVU</span></code></dt>
+<dd>
+<div class="desc"><p>Номер ВУ</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.Password"><code class="name">var <span class="ident">Password</span></code></dt>
+<dd>
+<div class="desc"><p>Пароль</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.Phone"><code class="name">var <span class="ident">Phone</span></code></dt>
+<dd>
+<div class="desc"><p>Телефон</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.Position"><code class="name">var <span class="ident">Position</span></code></dt>
+<dd>
+<div class="desc"><p>Статус пользователя (Клиент, сотрудник, администратор)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.Surname"><code class="name">var <span class="ident">Surname</span></code></dt>
+<dd>
+<div class="desc"><p>Фамилия</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.Token"><code class="name">var <span class="ident">Token</span></code></dt>
+<dd>
+<div class="desc"><p>Токен</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.client_contracts"><code class="name">var <span class="ident">client_contracts</span></code></dt>
+<dd>
+<div class="desc"><p>Вспомогательное поле для создания связи с классом Contract</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+<dt id="server.Person.favorites"><code class="name">var <span class="ident">favorites</span></code></dt>
+<dd>
+<div class="desc"><p>Вспомогательное поле для создания связи с классом Favorite</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        try:
+            state = instance_state(instance)
+        except AttributeError as err:
+            util.raise_(
+                orm_exc.UnmappedInstanceError(instance),
+                replace_context=err,
+            )
+        return self.impl.get(state, dict_)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="server.Person.del_client"><code class="name flex">
+<span>def <span class="ident">del_client</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для удаления клиента из системы</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь с информацией об удалении или сообщение об ошибке
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+@check_token
+def del_client(data):
+    &#34;&#34;&#34;
+    Метод для удаления клиента из системы\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь с информацией об удалении или сообщение об ошибке\r\n
+    &#34;&#34;&#34;
+    man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+    man.DateDel = datetime.date.today()
+    session.add(man)
+    session.commit()
+    data[&#39;content&#39;] = []
+    data[&#39;status&#39;] = &#39;200&#39;
+    data[&#39;message&#39;] = &#39;Аккаунт с id &#39; + str(man.Id) + &#39; удален&#39;
+    logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="server.Person.edit_client"><code class="name flex">
+<span>def <span class="ident">edit_client</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для редактирования личных данных клиента</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь с информацией об успешном редактировании или сообщение об ошибке
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+@check_token
+def edit_client(data):
+    &#34;&#34;&#34;
+    Метод для редактирования личных данных клиента\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь с информацией об успешном редактировании или сообщение об ошибке\r\n
+    &#34;&#34;&#34;
+    man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+    man = dict_to_object(man, data[&#39;content&#39;])
+    man.Birthday = datetime.datetime.strptime(data[&#39;content&#39;][&#39;Birthday&#39;], &#34;%d-%m-%Y&#34;)
+    session.add(man)
+    session.commit()
+    data[&#39;content&#39;] = []
+    data[&#39;token&#39;] = man.Token
+    data[&#39;status&#39;] = &#39;200&#39;
+    data[&#39;message&#39;] = &#39;Данные вашего аккаунта измнены! Ваш Id: &#39; + str(man.Id)
+    logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="server.Person.edit_pass"><code class="name flex">
+<span>def <span class="ident">edit_pass</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для смены пароля клиента</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь с информацией о смене пароля или сообщение об ошибке
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+@check_token
+def edit_pass(data):
+    &#34;&#34;&#34;
+    Метод для смены пароля клиента\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь с информацией о смене пароля или сообщение об ошибке\r\n
+    &#34;&#34;&#34;
+    man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+    salted = hashlib.sha256(data[&#39;content&#39;][&#39;Password&#39;].encode() + salt.encode()).hexdigest()
+    man.Password = salted
+    session.add(man)
+    session.commit()
+    data[&#39;content&#39;] = []
+    data[&#39;status&#39;] = &#39;200&#39;
+    data[&#39;token&#39;] = man.Token
+    data[&#39;message&#39;] = &#39;Пароль изменен! Ваш Id: &#39; + str(man.Id)
+    logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="server.Person.get_client"><code class="name flex">
+<span>def <span class="ident">get_client</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для получении личных данных клиента</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь с личной информацией клиента или сообщение об ошибке
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+@check_token
+def get_client(data):
+    &#34;&#34;&#34;
+    Метод для получении личных данных клиента\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь с личной информацией клиента или сообщение об ошибке\r\n
+    &#34;&#34;&#34;
+    man = session.query(Person).filter(Person.Token == data[&#39;token&#39;], Person.DateDel == None).first()
+    data[&#39;content&#39;] = [object_to_dict(man)]
+    del (data[&#39;content&#39;][0][&#39;Password&#39;])
+    del (data[&#39;content&#39;][0][&#39;Token&#39;])
+    data[&#39;token&#39;] = man.Token
+    data[&#39;status&#39;] = &#39;200&#39;
+    data[&#39;message&#39;] = &#39;Данные клиента с id &#39; + str(man.Id)
+    logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="server.Person.log_out"><code class="name flex">
+<span>def <span class="ident">log_out</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для выхода клиента из системы</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь с информацией о выходе из системы или сообщение об ошибке
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+@check_token
+def log_out(data):
+    &#34;&#34;&#34;
+    Метод для выхода клиента из системы\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь с информацией о выходе из системы или сообщение об ошибке\r\n
+    &#34;&#34;&#34;
+    tarantool_space.delete((data[&#39;token&#39;]))
+    data = {}
+    data[&#39;content&#39;] = []
+    data[&#39;status&#39;] = &#39;200&#39;
+    data[&#39;message&#39;] = &#39;Вы вышли из аккаунта!&#39;
+    logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="server.Person.sign_in"><code class="name flex">
+<span>def <span class="ident">sign_in</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для автоизации клиента в системе</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь с информацией об авторизации или сообщение об ошибке
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+def sign_in(data):
+    &#34;&#34;&#34;
+    Метод для автоизации клиента в системе\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь с информацией об авторизации или сообщение об ошибке\r\n
+    &#34;&#34;&#34;
+    salted = hashlib.sha256(data[&#39;content&#39;][&#39;Password&#39;].encode() + salt.encode()).hexdigest()
+    man = session.query(Person).filter(Person.Phone == data[&#39;content&#39;][&#39;Phone&#39;], Person.Password == salted,
+                                       Person.DateDel == None).first()
+    if man is not None:
+        data[&#39;content&#39;] = []
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;token&#39;] = man.Token = uuid.uuid4().hex
+        session.add(man)
+        session.commit()
+        tarantool_space.insert(
+            (man.Token, man.Id, int(datetime.datetime.now().timestamp())))
+        data[&#39;message&#39;] = &#39;Вы авторизовались. &#39; + &#39;Ваш id: &#39; + str(man.Id)
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+    else:
+        data[&#39;status&#39;] = &#39;404&#39;
+        data[&#39;message&#39;] = &#39;Неверный телефон или пароль. Попробуйте снова. &#39;
+        logger.error(str(data[&#39;message&#39;]) + &#39; &#39; + data[&#39;status&#39;])
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="server.Person.sign_up"><code class="name flex">
+<span>def <span class="ident">sign_up</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Метод для регистрации клиента в системе</p>
+<p>Параметры:</p>
+<pre><code>data: словарь с информацией полученной от клиента
+</code></pre>
+<p>Возвращаемое значение:</p>
+<pre><code>data: словарь с информацией о регистрации или сообщение об ошибке
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@check_500
+def sign_up(data):
+    &#34;&#34;&#34;
+    Метод для регистрации клиента в системе\r\n
+    Параметры:\r\n
+        data: словарь с информацией полученной от клиента\r\n
+    Возвращаемое значение:\r\n
+        data: словарь с информацией о регистрации или сообщение об ошибке\r\n
+    &#34;&#34;&#34;
+    man = session.query(Person).filter(Person.Phone == data[&#39;content&#39;][&#39;Phone&#39;], Person.DateDel == None).first()
+    if man is None:
+        salted = hashlib.sha256(data[&#39;content&#39;][&#39;Password&#39;].encode() + salt.encode()).hexdigest()
+        data[&#39;content&#39;][&#39;Password&#39;] = salted
+        person = Person(**data[&#39;content&#39;])
+        person.Birthday = datetime.datetime.strptime(data[&#39;content&#39;][&#39;Birthday&#39;], &#34;%d-%m-%Y&#34;)
+        person.DateDel = None
+        person.CompanyID = None
+        person.Position = 0
+        person.Comment = &#39;Я клиент&#39;
+        person.Token = uuid.uuid4().hex
+        session.add(person)
+        session.commit()
+        tarantool_space.insert(
+            (person.Token, person.Id, int(datetime.datetime.now().timestamp())))
+        data = {}
+        data[&#39;token&#39;] = person.Token
+        data[&#39;status&#39;] = &#39;200&#39;
+        data[&#39;content&#39;] = []
+        data[&#39;message&#39;] = &#39;Вы успешно зарегистрировались! Ваш Id: &#39; + str(person.Id)
+        logger.info(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+    else:
+        data[&#39;status&#39;] = &#39;500&#39;
+        data[&#39;message&#39;] = &#39;Пользователь с таким телефоном уже зарегистрирован!&#39;
+        logger.error(data[&#39;message&#39;] + &#39; &#39; + data[&#39;status&#39;])
+    return data</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="server.check_500" href="#server.check_500">check_500</a></code></li>
+<li><code><a title="server.check_token" href="#server.check_token">check_token</a></code></li>
+<li><code><a title="server.dict_to_object" href="#server.dict_to_object">dict_to_object</a></code></li>
+<li><code><a title="server.launch_server" href="#server.launch_server">launch_server</a></code></li>
+<li><code><a title="server.object_to_dict" href="#server.object_to_dict">object_to_dict</a></code></li>
+<li><code><a title="server.server_thread" href="#server.server_thread">server_thread</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="server.Car" href="#server.Car">Car</a></code></h4>
+<ul class="two-column">
+<li><code><a title="server.Car.Brand_and_name" href="#server.Car.Brand_and_name">Brand_and_name</a></code></li>
+<li><code><a title="server.Car.Car_type" href="#server.Car.Car_type">Car_type</a></code></li>
+<li><code><a title="server.Car.CategoryID" href="#server.Car.CategoryID">CategoryID</a></code></li>
+<li><code><a title="server.Car.CategoryVU" href="#server.Car.CategoryVU">CategoryVU</a></code></li>
+<li><code><a title="server.Car.CompanyID" href="#server.Car.CompanyID">CompanyID</a></code></li>
+<li><code><a title="server.Car.DateDel" href="#server.Car.DateDel">DateDel</a></code></li>
+<li><code><a title="server.Car.Drive" href="#server.Car.Drive">Drive</a></code></li>
+<li><code><a title="server.Car.Driver" href="#server.Car.Driver">Driver</a></code></li>
+<li><code><a title="server.Car.Engine" href="#server.Car.Engine">Engine</a></code></li>
+<li><code><a title="server.Car.FixedRate" href="#server.Car.FixedRate">FixedRate</a></code></li>
+<li><code><a title="server.Car.Header" href="#server.Car.Header">Header</a></code></li>
+<li><code><a title="server.Car.Id" href="#server.Car.Id">Id</a></code></li>
+<li><code><a title="server.Car.Location" href="#server.Car.Location">Location</a></code></li>
+<li><code><a title="server.Car.Percent" href="#server.Car.Percent">Percent</a></code></li>
+<li><code><a title="server.Car.Photos" href="#server.Car.Photos">Photos</a></code></li>
+<li><code><a title="server.Car.Power" href="#server.Car.Power">Power</a></code></li>
+<li><code><a title="server.Car.Price" href="#server.Car.Price">Price</a></code></li>
+<li><code><a title="server.Car.RentCondition" href="#server.Car.RentCondition">RentCondition</a></code></li>
+<li><code><a title="server.Car.Transmission" href="#server.Car.Transmission">Transmission</a></code></li>
+<li><code><a title="server.Car.Wheel_drive" href="#server.Car.Wheel_drive">Wheel_drive</a></code></li>
+<li><code><a title="server.Car.Year" href="#server.Car.Year">Year</a></code></li>
+<li><code><a title="server.Car.car_category" href="#server.Car.car_category">car_category</a></code></li>
+<li><code><a title="server.Car.car_company" href="#server.Car.car_company">car_company</a></code></li>
+<li><code><a title="server.Car.car_contract" href="#server.Car.car_contract">car_contract</a></code></li>
+<li><code><a title="server.Car.get_car" href="#server.Car.get_car">get_car</a></code></li>
+<li><code><a title="server.Car.get_cars" href="#server.Car.get_cars">get_cars</a></code></li>
+<li><code><a title="server.Car.status" href="#server.Car.status">status</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="server.Category" href="#server.Category">Category</a></code></h4>
+<ul class="">
+<li><code><a title="server.Category.DateDel" href="#server.Category.DateDel">DateDel</a></code></li>
+<li><code><a title="server.Category.Icon" href="#server.Category.Icon">Icon</a></code></li>
+<li><code><a title="server.Category.Id" href="#server.Category.Id">Id</a></code></li>
+<li><code><a title="server.Category.NameCat" href="#server.Category.NameCat">NameCat</a></code></li>
+<li><code><a title="server.Category.category_cars" href="#server.Category.category_cars">category_cars</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="server.Company" href="#server.Company">Company</a></code></h4>
+<ul class="two-column">
+<li><code><a title="server.Company.ContactEmail" href="#server.Company.ContactEmail">ContactEmail</a></code></li>
+<li><code><a title="server.Company.ContactPhone" href="#server.Company.ContactPhone">ContactPhone</a></code></li>
+<li><code><a title="server.Company.DateDel" href="#server.Company.DateDel">DateDel</a></code></li>
+<li><code><a title="server.Company.Email" href="#server.Company.Email">Email</a></code></li>
+<li><code><a title="server.Company.FIOContact" href="#server.Company.FIOContact">FIOContact</a></code></li>
+<li><code><a title="server.Company.Id" href="#server.Company.Id">Id</a></code></li>
+<li><code><a title="server.Company.Name" href="#server.Company.Name">Name</a></code></li>
+<li><code><a title="server.Company.Note" href="#server.Company.Note">Note</a></code></li>
+<li><code><a title="server.Company.Phone" href="#server.Company.Phone">Phone</a></code></li>
+<li><code><a title="server.Company.company_cars" href="#server.Company.company_cars">company_cars</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="server.Contract" href="#server.Contract">Contract</a></code></h4>
+<ul class="two-column">
+<li><code><a title="server.Contract.CarId" href="#server.Contract.CarId">CarId</a></code></li>
+<li><code><a title="server.Contract.ClientId" href="#server.Contract.ClientId">ClientId</a></code></li>
+<li><code><a title="server.Contract.Comission" href="#server.Contract.Comission">Comission</a></code></li>
+<li><code><a title="server.Contract.Cost" href="#server.Contract.Cost">Cost</a></code></li>
+<li><code><a title="server.Contract.DateDel" href="#server.Contract.DateDel">DateDel</a></code></li>
+<li><code><a title="server.Contract.DateEndContract" href="#server.Contract.DateEndContract">DateEndContract</a></code></li>
+<li><code><a title="server.Contract.DateStartContract" href="#server.Contract.DateStartContract">DateStartContract</a></code></li>
+<li><code><a title="server.Contract.Driver" href="#server.Contract.Driver">Driver</a></code></li>
+<li><code><a title="server.Contract.Id" href="#server.Contract.Id">Id</a></code></li>
+<li><code><a title="server.Contract.Note" href="#server.Contract.Note">Note</a></code></li>
+<li><code><a title="server.Contract.Status" href="#server.Contract.Status">Status</a></code></li>
+<li><code><a title="server.Contract.add_order" href="#server.Contract.add_order">add_order</a></code></li>
+<li><code><a title="server.Contract.contract_car" href="#server.Contract.contract_car">contract_car</a></code></li>
+<li><code><a title="server.Contract.contract_client" href="#server.Contract.contract_client">contract_client</a></code></li>
+<li><code><a title="server.Contract.get_order" href="#server.Contract.get_order">get_order</a></code></li>
+<li><code><a title="server.Contract.get_orders" href="#server.Contract.get_orders">get_orders</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="server.Favorite" href="#server.Favorite">Favorite</a></code></h4>
+<ul class="two-column">
+<li><code><a title="server.Favorite.CarId" href="#server.Favorite.CarId">CarId</a></code></li>
+<li><code><a title="server.Favorite.ClientId" href="#server.Favorite.ClientId">ClientId</a></code></li>
+<li><code><a title="server.Favorite.DateDel" href="#server.Favorite.DateDel">DateDel</a></code></li>
+<li><code><a title="server.Favorite.Date_add" href="#server.Favorite.Date_add">Date_add</a></code></li>
+<li><code><a title="server.Favorite.Id" href="#server.Favorite.Id">Id</a></code></li>
+<li><code><a title="server.Favorite.add_favorite" href="#server.Favorite.add_favorite">add_favorite</a></code></li>
+<li><code><a title="server.Favorite.del_favorite" href="#server.Favorite.del_favorite">del_favorite</a></code></li>
+<li><code><a title="server.Favorite.get_favorites" href="#server.Favorite.get_favorites">get_favorites</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="server.Person" href="#server.Person">Person</a></code></h4>
+<ul class="two-column">
+<li><code><a title="server.Person.Birthday" href="#server.Person.Birthday">Birthday</a></code></li>
+<li><code><a title="server.Person.CategoryVuID" href="#server.Person.CategoryVuID">CategoryVuID</a></code></li>
+<li><code><a title="server.Person.Comment" href="#server.Person.Comment">Comment</a></code></li>
+<li><code><a title="server.Person.CompanyID" href="#server.Person.CompanyID">CompanyID</a></code></li>
+<li><code><a title="server.Person.DateDel" href="#server.Person.DateDel">DateDel</a></code></li>
+<li><code><a title="server.Person.Email" href="#server.Person.Email">Email</a></code></li>
+<li><code><a title="server.Person.Id" href="#server.Person.Id">Id</a></code></li>
+<li><code><a title="server.Person.Name" href="#server.Person.Name">Name</a></code></li>
+<li><code><a title="server.Person.NumVU" href="#server.Person.NumVU">NumVU</a></code></li>
+<li><code><a title="server.Person.Password" href="#server.Person.Password">Password</a></code></li>
+<li><code><a title="server.Person.Phone" href="#server.Person.Phone">Phone</a></code></li>
+<li><code><a title="server.Person.Position" href="#server.Person.Position">Position</a></code></li>
+<li><code><a title="server.Person.Surname" href="#server.Person.Surname">Surname</a></code></li>
+<li><code><a title="server.Person.Token" href="#server.Person.Token">Token</a></code></li>
+<li><code><a title="server.Person.client_contracts" href="#server.Person.client_contracts">client_contracts</a></code></li>
+<li><code><a title="server.Person.del_client" href="#server.Person.del_client">del_client</a></code></li>
+<li><code><a title="server.Person.edit_client" href="#server.Person.edit_client">edit_client</a></code></li>
+<li><code><a title="server.Person.edit_pass" href="#server.Person.edit_pass">edit_pass</a></code></li>
+<li><code><a title="server.Person.favorites" href="#server.Person.favorites">favorites</a></code></li>
+<li><code><a title="server.Person.get_client" href="#server.Person.get_client">get_client</a></code></li>
+<li><code><a title="server.Person.log_out" href="#server.Person.log_out">log_out</a></code></li>
+<li><code><a title="server.Person.sign_in" href="#server.Person.sign_in">sign_in</a></code></li>
+<li><code><a title="server.Person.sign_up" href="#server.Person.sign_up">sign_up</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

@@ -19,8 +19,10 @@ import datetime
 import tarantool
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
-
 from functools import wraps
+import pika
+
+
 with open('config_server') as config_server:
     config = yaml.safe_load(config_server)
 
@@ -29,7 +31,13 @@ logging.config.dictConfig(config['logger_settings'])
 logger = logging.getLogger('server')
 #########################################################################################
 
+
+
 try:
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    channel = connection.channel()
+    channel.queue_declare(queue='client_to_server')
+    channel.queue_declare(queue='server_to_client')
     connection_tarantool = tarantool.connect(config['connection_string_tarantool_ip'],
                                              config['connection_string_tarantool_port'])
     tarantool_space = connection_tarantool.space('user_token')
@@ -43,6 +51,9 @@ try:
 
 except tarantool.error.NetworkError:
     logger.error('Tarantool не подключен!!')
+    exit()
+except pika.exceptions.AMQPConnectionError:
+    logger.error('RabbitMQ не подключен!!')
     exit()
 except Exception as e:
     logger.error(e)
@@ -761,7 +772,7 @@ client_data = {}
 connection_tarantool.call('box.space.user_token:truncate', ())
 
 
-def server_thread(connection, address):  # pragma: no cover
+def server_thread():  # pragma: no cover
     """
     Метод для запуска сервера в потоке\r\n
     Параметры:\r\n
@@ -822,44 +833,36 @@ def server_thread(connection, address):  # pragma: no cover
         return recvall(sock, msglen).decode()
 
     while True:
-        logger.info('Клиент с адресом' + str(address) + ' подключен')
-        try:
-            client_data = recv_msg(connection)
-        except ConnectionResetError:
-            logger.info('Клиент с адресом' + str(address) + ' отключился')
-            exit()
-        if not client_data:
-            logger.info('Клиент с адресом' + str(address) + ' отключился')
-            exit()
-        client_data = json.loads(client_data)
-        new_client_dict = client_data
-        if client_data['endpoint'] == 'cars':
-            q = client_data['action']
-            new_client_dict = cars_dict.get(q)(client_data)
-        if client_data['endpoint'] == 'clients':
-            q = client_data['action']
-            new_client_dict = person_dict.get(q)(client_data)
-        if client_data['endpoint'] == 'orders':
-            q = client_data['action']
-            new_client_dict = contract_dict.get(q)(client_data)
-        client_data = {}
-        new_client_dict = (bytes(json.dumps(new_client_dict, ensure_ascii=False, default=str).encode()))
-        msg = struct.pack('>I', len(new_client_dict)) + new_client_dict
-        connection.sendall(msg)
+        # logger.info('Клиент с адресом' + str(address) + ' подключен')
+        def callback(ch, method, properties, body):
+            client_data = json.loads(body)
+            new_client_dict = client_data
+            if client_data['endpoint'] == 'cars':
+                q = client_data['action']
+                new_client_dict = cars_dict.get(q)(client_data)
+            if client_data['endpoint'] == 'clients':
+                q = client_data['action']
+                new_client_dict = person_dict.get(q)(client_data)
+            if client_data['endpoint'] == 'orders':
+                q = client_data['action']
+                new_client_dict = contract_dict.get(q)(client_data)
+            client_data = {}
+            new_client_dict = (json.dumps(new_client_dict, ensure_ascii=False, default=str))
+            channel.queue_declare(queue='server_to_client')
+            channel.basic_publish(exchange='', routing_key='server_to_client', body=new_client_dict)
+        channel.basic_consume(queue='client_to_server', on_message_callback=callback, auto_ack=True)
+        channel.start_consuming()
 
 
 def launch_server():  # pragma: no cover
     """Метод для инициализации сокета и ожидания подключения клиента """
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # создаем сокет
-    server_socket.bind((config['address'], config['port']))  # определяем адрес и порт
-    server_socket.listen()  # прослушиваем порт от одного клиента
-    logger.info('Сервер запущен по адресу: ' + config['address'] + ':' + str(config['port']))
-    while True:
-        connection, address = server_socket.accept()
-        th = Thread(target=server_thread, args=(connection, address))
-        th.start()
-        logger.info('Сервер в потоке: ' + th.name)
-        logger.info('Всего потоков: ' + str(threading.activeCount() - 1))
+    # server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # создаем сокет
+    # server_socket.bind((config['address'], config['port']))  # определяем адрес и порт
+    # server_socket.listen()  # прослушиваем порт от одного клиента
+
+    logger.info('****** RabbitMq ******')
+    logger.info('Срвер запущен по адресу ' + config['address'] + ':' + str(config['port']))
+    server_thread()
 
 
 # Base.metadata.create_all(db_engine)
