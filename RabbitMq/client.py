@@ -6,6 +6,7 @@ import json
 import socket
 import struct
 import threading
+import uuid
 from time import sleep
 
 import pika
@@ -15,12 +16,11 @@ from termcolor import cprint
 try:
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
     channel = connection.channel()
-    channel.queue_declare(queue='client_to_server')
-    channel.queue_declare(queue='server_to_client')
+    result = channel.queue_declare(queue='', exclusive=True)
+    callback_queue = result.method.queue
 except pika.exceptions.AMQPConnectionError:
     print('RabbitMQ не подключен!!')
     exit()
-# client_socket = socket.socket()  # создаем сокет
 
 car_values_list = {
     'Transmission': ['Механическая', 'Автоматическая'],
@@ -98,12 +98,6 @@ def launch_client():
         14: ['clients', 'get_favorites', get_favorites, 'чтобы просмотреть список избранного'],
         15: ['clients', 'log_out', log_out, 'чтобы выйти из аккаунта'],
     }
-    try:
-        print('bubu')
-        # client_socket.connect(('localhost', 9090))  # подключаемся к серверу
-    except ConnectionRefusedError:
-        print('Сервер не запущен')
-        return False
     cprint('Клиент запущен!', 'yellow')
     client_data = {}  # словарь для отправки серверу
 
@@ -146,43 +140,10 @@ def launch_client():
                 cprint('Ошибка, проверьте введенные данные!', 'red')
                 break
 
-def recvall(sock, n):
-    """
-    Метод для получение данных от клиента в виде байтов\r\n
-    Параметры:\r\n
-        sock: информация о сокете\r\n
-        n: количество полученных байт\r\n
-    Возвращаемое значение:\r\n
-        data: словарь с информацией\r\n
-    """
-    data = b''
-    while len(data) < n:
-        packet = sock.recv(n - len(data))
-        if not packet:
-            return None
-        data += packet
-    return data
-
-def recv_msg(sock):
-    """
-    Метод для определения длинны сообщения от клиента\r\n
-    Параметры:\r\n
-        sock: информация о сокете\r\n
-    """
-    raw_msglen = recvall(sock, 4)
-    if not raw_msglen:
-        return None
-    msglen = struct.unpack('>I', raw_msglen)[0]
-    # Получение данных
-    return recvall(sock, msglen).decode()
-
-def new_def():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-    channel_2 = connection.channel()
-    channel_2.queue_declare(queue='server_to_client')
-    perem3 = channel_2.basic_get(queue='server_to_client', auto_ack=True)
-    perem3 = perem3[2].decode()
-    return perem3
+def get_message():
+    message = channel.basic_get(queue=callback_queue, auto_ack=True)
+    message = message[2].decode()
+    return message
 
 
 def send_and_receive(client_data):
@@ -196,10 +157,11 @@ def send_and_receive(client_data):
     # send_data = json.dumps(client_data)
     # client_socket.sendall(bytes(send_data, 'UTF-8'))  # отправка на сервер
     send_data = json.dumps(client_data)
-    channel.basic_publish(exchange='', routing_key='client_to_server', body= send_data)
+    corr_id = str(uuid.uuid4())
+    channel.basic_publish(exchange='', routing_key='server_queue',properties=pika.BasicProperties(reply_to=callback_queue, correlation_id=corr_id), body=send_data)
     sleep(0.1)
-    res = json.loads(new_def())
-    return res
+    message = json.loads(get_message())
+    return message
 
 
 def print_content(client_data):
@@ -239,7 +201,6 @@ def input_client_data_fields(client_data):
         print('Введите ' + fields_dict[client_data['endpoint']][field])
         client_data['content'][field] = input()
     return client_data
-
 
 def print_client_data_fields(client_data):
     """

@@ -36,19 +36,15 @@ logger = logging.getLogger('server')
 try:
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
     channel = connection.channel()
-    channel.queue_declare(queue='client_to_server')
-    channel.queue_declare(queue='server_to_client')
+    channel.queue_declare(queue='server_queue')
     connection_tarantool = tarantool.connect(config['connection_string_tarantool_ip'],
                                              config['connection_string_tarantool_port'])
     tarantool_space = connection_tarantool.space('user_token')
     db_engine = create_engine(config['connection_string'])
     db_engine.connect()
     Base = declarative_base()
-
     session_factory = sessionmaker(bind=db_engine)
     session = scoped_session(session_factory)
-    # session = Session(bind=db_engine)
-
 except tarantool.error.NetworkError:
     logger.error('Tarantool не подключен!!')
     exit()
@@ -802,39 +798,8 @@ def server_thread():  # pragma: no cover
         'get_orders': Contract.get_orders,
     }
 
-    def recvall(sock, n):
-        """
-        Метод для получение данных от клиента в виде байтов\r\n
-        Параметры:\r\n
-            sock: информация о сокете\r\n
-            n: количество полученных байт\r\n
-        Возвращаемое значение:\r\n
-            data: словарь с информацией\r\n
-        """
-        # Функция для получения n байт
-        data = b''
-        while len(data) < n:
-            packet = sock.recv(n - len(data))
-            if not packet:
-                return None
-            data += packet
-        return data
-
-    def recv_msg(sock):
-        """
-        Метод для определения длинны сообщения от клиента\r\n
-        Параметры:\r\n
-            sock: информация о сокете\r\n
-        """
-        raw_msglen = recvall(sock, 4)
-        if not raw_msglen:
-            return None
-        msglen = struct.unpack('>I', raw_msglen)[0]
-        return recvall(sock, msglen).decode()
-
     while True:
-        # logger.info('Клиент с адресом' + str(address) + ' подключен')
-        def callback(ch, method, properties, body):
+        def callback(ch, method,  props, body):
             client_data = json.loads(body)
             new_client_dict = client_data
             if client_data['endpoint'] == 'cars':
@@ -848,9 +813,8 @@ def server_thread():  # pragma: no cover
                 new_client_dict = contract_dict.get(q)(client_data)
             client_data = {}
             new_client_dict = (json.dumps(new_client_dict, ensure_ascii=False, default=str))
-            channel.queue_declare(queue='server_to_client')
-            channel.basic_publish(exchange='', routing_key='server_to_client', body=new_client_dict)
-        channel.basic_consume(queue='client_to_server', on_message_callback=callback, auto_ack=True)
+            channel.basic_publish(exchange='', routing_key=props.reply_to, properties=pika.BasicProperties(correlation_id = props.correlation_id), body=new_client_dict)
+        channel.basic_consume(queue='server_queue', on_message_callback=callback, auto_ack=True)
         channel.start_consuming()
 
 
